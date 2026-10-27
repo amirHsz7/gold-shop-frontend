@@ -1,0 +1,21 @@
+
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("../fonts/Vazirmatn[wght].woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* colors */
+@theme {
+  --font-sans: "Vazirmatn", sans-serif;
+  --color-burgundy: #641F32;
+  --color-nude: #B58A69;
+  --color-cream: #F5EFE7;
+  --color-dark-brown: #302522;
+  --color-gold: #D6B36A;
+}
+
