@@ -25,15 +25,20 @@
              lg:px-6 lg:text-dark-brown xl:px-12"
     >
       <!-- Mobile menu button -->
-      <button
-        type="button"
-        class="flex size-10 shrink-0 items-center justify-start lg:hidden"
+      <BaseBtn
+        class="lg:hidden !min-h-0"
+        flat
+        color="cream"
+        padding="none"
+        size="md"
         aria-label="باز کردن منو"
         :aria-expanded="isMenuOpen"
         @click="isMenuOpen = true"
       >
-        <Icon name="lucide:menu" size="23px" />
-      </button>
+        <template #icon>
+          <Icon name="lucide:menu" size="23px" />
+        </template>
+      </BaseBtn>
 
       <!-- Logo -->
       <NuxtLink
@@ -96,16 +101,19 @@
         class="flex shrink-0 items-center gap-3
                lg:flex-row lg:gap-4"
       >
-        <!-- Search -->
-        <button
-          type="button"
-          class="flex size-8 items-center justify-center
-                 transition-opacity hover:opacity-60"
+        <BaseBtn
+          flat
+          color="burgundy"
+          round
+          padding="none"
+          class="size-8 !min-h-0 text-current"
           aria-label="جست‌وجو"
           @click="isSearchOpen = !isSearchOpen"
         >
-          <Icon name="lucide:search" size="21px" />
-        </button>
+          <template #icon>
+            <Icon name="lucide:search" size="21px" />
+          </template>
+        </BaseBtn>
 
         <!-- Account -->
         <NuxtLink
@@ -153,30 +161,39 @@
 
       <div
         class="mx-auto flex max-w-3xl items-center gap-3
-               rounded-lg bg-white px-4"
+               rounded-lg bg-white"
       >
-        <Icon
-          name="lucide:search"
-          class="shrink-0 text-nude"
-          size="19px"
-        />
 
-        <input
-          id="header-search"
-          type="search"
-          placeholder="جست‌وجو در محصولات..."
-          class="min-w-0 flex-1 bg-transparent py-3
-                 text-sm text-dark-brown outline-none
-                 placeholder:text-dark-brown/45"
-        />
+          <BaseInput
+            v-model="searchQuery"
+            type="text"
+            placeholder="جست‌وجو در محصولات..."
+            dense
+            hide-bottom-space
+            :input-class="'!text-sm !text-dark-brown'"
+            class="min-w-0 flex-1"
+          >
+          <template #prepend>
+            <Icon
+              name="lucide:search"
+              class="shrink-0 text-nude"
+              size="19px"
+            />
+          </template>
 
-        <button
-          type="button"
-          class="text-xs text-dark-brown/60"
-          @click="isSearchOpen = false"
-        >
-          بستن
-        </button>
+          <template #append>
+            <BaseBtn
+              flat
+              round
+              dense
+              padding="none"
+              class="shrink-0 p-0! min-h-0! text-xs text-dark-brown/60"
+              @click="isSearchOpen = false"
+            >
+              <Icon name="lucide:x" size="16px" />
+            </BaseBtn>
+          </template>
+        </BaseInput>
       </div>
     </div>
 
@@ -207,14 +224,18 @@
             </span>
           </NuxtLink>
 
-          <button
-            type="button"
+          <BaseBtn
+            flat
+            round
+            padding="none"
+            class="size-9 !min-h-0"
             aria-label="بستن منو"
-            class="flex size-9 items-center justify-center"
             @click="isMenuOpen = false"
           >
-            <Icon name="lucide:x" size="22px" />
-          </button>
+            <template #icon>
+              <Icon name="lucide:x" size="22px" />
+            </template>
+          </BaseBtn>
         </div>
 
         <!-- Navigation links -->
@@ -260,9 +281,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import BaseDialog from '@/components/base/dialog/BaseDialog.vue'
+import BaseBtn from '@/components/base/button/BaseBtn.vue'
+import BaseInput from '@/components/base/inputs/base-input/BaseInput.vue'
 
 const isMenuOpen = ref(false)
 const isSearchOpen = ref(false)
+const searchQuery = ref('')
 
 const navigation = [
   { label: 'خانه', to: '/' },
