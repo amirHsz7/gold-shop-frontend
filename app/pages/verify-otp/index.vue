@@ -86,7 +86,7 @@
             </h1>
 
             <p class="mt-1 text-xs leading-6 text-[#92908B]">
-             کد تایید ارسال شده به شماره {{ userStore.otp.mobile }}را وارد کنید.
+             کد تایید ارسال شده به شماره {{ otpState?.mobile }}را وارد کنید.
             </p>
           </div>
 
@@ -163,21 +163,55 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import BaseBtn from '~/components/base/button/BaseBtn.vue'
-import BaseInput from '~/components/base/inputs/base-input/BaseInput.vue'
 import OtpInput from '~/components/base/inputs/OtpInput.vue'
+import { authRepository } from '~/repositories/auth'
+import { useToast } from '@/composables/useToast'
+
+const { notify } = useToast()
 
 definePageMeta({
   layout: 'auth',
 })
 
+const otpState = useOtpState()
+const { verifyOtp } = authRepository()
 
-const userStore = useUserStore()
-const mobile = ref('')
 const code = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
 
+// اگه کاربر مستقیم اومد اینجا یا صفحه رو رفرش کرد، برگرده به login
+if (!otpState.value) {
+  await navigateTo('/login')
+}
+
+const userStore = useUserStore() 
+
 async function submitForm() {
-  // منطق درخواست OTP فعلی‌ات را اینجا قرار بده.
+  if (loading.value || !otpState.value) return
+
+  errorMessage.value = ''
+  loading.value = true
+
+  try {
+    const res = await verifyOtp({
+      mobile: otpState.value.mobile,
+      code: code.value,
+      purpose: otpState.value.purpose,
+    })
+
+    userStore.setSession(res.data)
+    otpState.value = null
+    notify({ message: 'خوش آمدید.', color: 'green', textColor: '#ffffff', position: 'bottom', timeout: 3000 })
+    await navigateTo('/')
+  }
+  catch (error: any) {
+    errorMessage.value
+      = error?.data?.message
+        || 'تأیید کد با خطا مواجه شد. لطفاً دوباره تلاش کنید.'
+  }
+  finally {
+    loading.value = false
+  }
 }
 </script>

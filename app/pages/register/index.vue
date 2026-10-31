@@ -97,7 +97,7 @@
           >
             <BaseInput
               id="name"
-              v-model="mobile"
+              v-model="form.fullName"
               type="name"
               name="name"
               inputmode="text"
@@ -118,7 +118,7 @@
             </BaseInput>
             <BaseInput
               id="mobile"
-              v-model="mobile"
+              v-model="form.mobile"
               type="tel"
               name="mobile"
               inputmode="numeric"
@@ -219,17 +219,57 @@ import { ref } from 'vue'
 import BaseBtn from '~/components/base/button/BaseBtn.vue'
 import BaseInput from '~/components/base/inputs/base-input/BaseInput.vue'
 import BaseCheckbox from '~/components/base/inputs/BaseCheckbox.vue'
+import { authRepository } from '~/repositories/auth'
 
 definePageMeta({
   layout: 'auth',
 })
 
-const mobile = ref('')
 const loading = ref(false)
 const accepted = ref(false)
 const errorMessage = ref('')
 
+const { register } = authRepository()
+
+interface FormState {
+  mobile: string
+  fullName: string
+}
+const initialFormState = () : FormState => ({
+  mobile: '',
+  fullName: ''
+});
+const form = reactive(initialFormState());
+const otpState = useOtpState() 
+
+const MOBILE_REGEX = /^09\d{9}$/
+
 async function submitForm() {
-  // منطق درخواست OTP فعلی‌ات را اینجا قرار بده.
+  if (loading.value) return
+
+  errorMessage.value = ''
+
+  if (!MOBILE_REGEX.test(form.mobile)) {
+    errorMessage.value = 'شماره موبایل معتبر نیست. مثال: 09123456789'
+    return
+  }
+
+  loading.value = true
+
+  try {
+    await register(form)
+
+    otpState.value = { mobile: form.mobile, purpose: 'REGISTER' }
+
+    await navigateTo('/verify-otp')
+  }
+  catch (error: any) {
+    errorMessage.value
+      = error?.data?.message
+        || 'ارسال کد با خطا مواجه شد. لطفاً دوباره تلاش کنید.'
+  }
+  finally {
+    loading.value = false
+  }
 }
 </script>

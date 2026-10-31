@@ -196,16 +196,47 @@
 import { ref } from 'vue'
 import BaseBtn from '~/components/base/button/BaseBtn.vue'
 import BaseInput from '~/components/base/inputs/base-input/BaseInput.vue'
+import { authRepository } from '~/repositories/auth'
 
 definePageMeta({
   layout: 'auth',
 })
 
+const { login } = authRepository()
+const otpState = useOtpState() 
+
 const mobile = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
 
+const MOBILE_REGEX = /^09\d{9}$/
+
 async function submitForm() {
-  // منطق درخواست OTP فعلی‌ات را اینجا قرار بده.
+  if (loading.value) return
+
+  errorMessage.value = ''
+
+  if (!MOBILE_REGEX.test(mobile.value)) {
+    errorMessage.value = 'شماره موبایل معتبر نیست. مثال: 09123456789'
+    return
+  }
+
+  loading.value = true
+
+  try {
+    await login({ mobile: mobile.value })
+
+    otpState.value = { mobile: mobile.value, purpose: 'LOGIN' }
+
+    await navigateTo('/verify-otp')
+  }
+  catch (error: any) {
+    errorMessage.value
+      = error?.data?.message
+        || 'ارسال کد با خطا مواجه شد. لطفاً دوباره تلاش کنید.'
+  }
+  finally {
+    loading.value = false
+  }
 }
 </script>

@@ -9,7 +9,7 @@ const {
   status,
   error,
   refresh,
-} = await healthRepo.checkHealth()
+} = await healthRepo.testAuth()
 console.log('sss',status);
 
 </script>
@@ -29,7 +29,7 @@ console.log('sss',status);
     </p>
 
     <div v-else>
-      <p>وضعیت پاسخ: {{ data?.status }}</p>
+      <p>وضعیت پاسخ: {{ data?.data.userId }}</p>
 
       <button
         class="mt-4 rounded bg-gray-900 px-4 py-2 text-white"

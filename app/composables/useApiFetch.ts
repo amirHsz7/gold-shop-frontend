@@ -1,14 +1,15 @@
-
 import type { UseFetchOptions } from 'nuxt/app'
 
+type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'head' | 'options'
+
 export function useApiFetch<T>(
-  url: string,
-  options: UseFetchOptions<T> = {},
+  url: string | (() => string),
+  options: Omit<UseFetchOptions<T>, 'method'> & { method?: HttpMethod } = {},
 ) {
   const { $api } = useNuxtApp()
 
   return useFetch(url, {
-    ...options,
-    $fetch: $api,
-  })
+    ...(options as UseFetchOptions<T>),
+    $fetch: $api as typeof $fetch,
+  } as UseFetchOptions<T>)
 }

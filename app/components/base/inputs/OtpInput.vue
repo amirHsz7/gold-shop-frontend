@@ -69,7 +69,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const form = inject('form-registry', null as any)
 
-const OTP_LENGTH = 5
+const OTP_LENGTH = 6
 const code = ref(Array(OTP_LENGTH).fill(''))
 const inputs = ref<(HTMLInputElement | null)[]>([])
 const isFocusedIndex = ref(-1)

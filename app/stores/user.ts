@@ -1,16 +1,42 @@
+export interface User {
+  id: string
+  fullName: string
+  mobile: string
+  role: 'ADMIN' | 'CUSTOMER'
+}
 
-export const useUserStore = defineStore('user', {
-  state: () => ({
-    accessToken: null as string | null,
-    otp: {
-      mobile: null as string | null,
-      pending: false as boolean
-    }
-  }),
+const TOKEN_MAX_AGE = 60 * 15 
 
-  actions: {
-    setAccessToken(token: string | null) {
-      this.accessToken = token
-    },
-  },
+export const useUserStore = defineStore('user', () => {
+  const accessToken = useCookie<string | null>('access_token', {
+    default: () => null,
+    maxAge: TOKEN_MAX_AGE,
+    sameSite: 'lax',
+    secure: !import.meta.dev,
+    path: '/',
+  })
+
+  const user = ref<User | null>(null)
+
+  const isLoggedIn = computed(() => !!accessToken.value)
+  const isAdmin = computed(() => user.value?.role === 'ADMIN')
+
+  function setSession(payload: { accessToken: string, user: User }) {
+    accessToken.value = payload.accessToken
+    user.value = payload.user
+  }
+
+  async function fetchUser() {
+    if (!accessToken.value) return
+    const { $api } = useNuxtApp()
+    const res = await $api<{ data: User }>('/auth/me')
+    user.value = res.data
+  }
+
+  function logout() {
+    accessToken.value = null
+    user.value = null
+  }
+
+  return { accessToken, user, isLoggedIn, isAdmin, setSession, fetchUser, logout }
 })
