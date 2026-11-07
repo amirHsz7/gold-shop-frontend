@@ -1,10 +1,11 @@
+
 <template>
   <header class="w-full" dir="rtl">
-    <!-- Desktop announcement bar -->
+    <!-- Desktop Announcement Bar -->
     <div
       class="hidden h-[30px] items-center justify-between
              bg-burgundy px-6 text-[11px] text-cream
-             lg:flex lg:px-8 xl:px-12"
+             lg:flex xl:px-12"
     >
       <div class="flex items-center gap-2">
         <Icon name="lucide:chart-no-axes-combined" size="15px" />
@@ -17,62 +18,60 @@
       </div>
     </div>
 
-    <!-- Main navigation -->
+    <!-- Main Navigation -->
     <div
-      class="relative z-30 flex h-[68px] items-center
-             justify-between bg-burgundy px-4 text-cream
-             lg:h-[60px] lg:flex-row lg:bg-cream
-             lg:px-6 lg:text-dark-brown xl:px-12"
+      class="relative z-30 flex h-[60px] items-center
+             justify-between bg-cream px-4 text-dark-brown
+             lg:px-6 xl:px-12"
     >
-      <!-- Mobile menu button -->
+      <!-- Mobile Menu Button -->
       <BaseBtn
-        class="lg:hidden !min-h-0"
         flat
-        color="cream"
+        color="burgundy"
         padding="none"
         size="md"
+        class="lg:hidden !min-h-0"
         aria-label="باز کردن منو"
         :aria-expanded="isMenuOpen"
         @click="isMenuOpen = true"
       >
         <template #icon>
-          <Icon name="lucide:menu" size="23px" />
+          <Icon name="lucide:menu" size="21px" />
         </template>
       </BaseBtn>
 
       <!-- Logo -->
       <NuxtLink
         to="/"
-        class="absolute left-1/2 top-1/2 flex
-               -translate-x-1/2 -translate-y-1/2
+        class="absolute left-1/2 top-1/2
+               flex -translate-x-1/2 -translate-y-1/2
                flex-col items-center justify-center
                lg:static lg:translate-x-0 lg:translate-y-0"
         aria-label="صفحه اصلی Golden"
       >
         <Icon
           name="lucide:flower-2"
-          class="text-gold lg:text-burgundy"
-          size="23px"
+          class="text-burgundy"
+          size="20px"
         />
 
         <span
           class="font-serif text-[20px] leading-5
-                 tracking-[0.16em] text-gold
-                 lg:text-[22px] lg:text-burgundy"
+                 tracking-[0.16em] text-burgundy
+                 lg:text-[22px]"
         >
           GOLDEN
         </span>
 
         <span
           class="mt-1 text-[6px] tracking-[0.24em]
-                 text-cream/75 lg:text-[7px]
-                 lg:text-dark-brown/70"
+                 text-dark-brown/70 lg:text-[7px]"
         >
           JEWELRY &amp; GOLD
         </span>
       </NuxtLink>
 
-      <!-- Desktop navigation -->
+      <!-- Desktop Navigation -->
       <nav
         class="hidden items-center gap-5 text-[12px]
                lg:flex xl:gap-7"
@@ -97,30 +96,12 @@
       </nav>
 
       <!-- Actions -->
-      <div
-        class="flex shrink-0 items-center gap-3
-               lg:flex-row lg:gap-4"
-      >
-        <BaseBtn
-          flat
-          color="burgundy"
-          round
-          padding="none"
-          class="size-8 !min-h-0 text-current"
-          aria-label="جست‌وجو"
-          @click="isSearchOpen = !isSearchOpen"
-        >
-          <template #icon>
-            <Icon name="lucide:search" size="21px" />
-          </template>
-        </BaseBtn>
-
+      <div class="flex shrink-0 items-center gap-2 lg:gap-3">
         <!-- Account -->
         <NuxtLink
           to="/account"
-          class="hidden size-8 items-center justify-center
-                 transition-opacity hover:opacity-60
-                 lg:flex"
+          class="flex size-8 items-center justify-center
+                 transition-opacity hover:opacity-60"
           aria-label="حساب کاربری"
         >
           <Icon name="lucide:user-round" size="19px" />
@@ -134,22 +115,37 @@
                  hover:opacity-60"
           aria-label="سبد خرید"
         >
-          <Icon name="lucide:shopping-bag" size="22px" />
+          <Icon name="lucide:shopping-bag" size="21px" />
 
           <span
             class="absolute -right-0.5 -top-0.5
                    flex size-[15px] items-center
                    justify-center rounded-full
-                   bg-gold text-[9px] font-bold
-                   text-dark-brown"
+                   bg-burgundy text-[9px]
+                   font-bold text-white"
           >
             ۲
           </span>
         </NuxtLink>
+
+        <!-- Desktop Search -->
+        <BaseBtn
+          flat
+          color="burgundy"
+          round
+          padding="none"
+          class="hidden size-8 !min-h-0 text-current lg:flex"
+          aria-label="جست‌وجو"
+          @click="isSearchOpen = !isSearchOpen"
+        >
+          <template #icon>
+            <Icon name="lucide:search" size="19px" />
+          </template>
+        </BaseBtn>
       </div>
     </div>
 
-    <!-- Search panel -->
+    <!-- Search Panel -->
     <div
       v-if="isSearchOpen"
       class="relative z-20 border-b border-nude/30
@@ -163,16 +159,15 @@
         class="mx-auto flex max-w-3xl items-center gap-3
                rounded-lg bg-white"
       >
-
-          <BaseInput
-            v-model="searchQuery"
-            type="text"
-            placeholder="جست‌وجو در محصولات..."
-            dense
-            hide-bottom-space
-            :input-class="'!text-sm !text-dark-brown'"
-            class="min-w-0 flex-1"
-          >
+        <BaseInput
+          v-model="searchQuery"
+          type="text"
+          placeholder="جست‌وجو در محصولات..."
+          dense
+          hide-bottom-space
+          :input-class="'!text-sm !text-dark-brown'"
+          class="min-w-0 flex-1"
+        >
           <template #prepend>
             <Icon
               name="lucide:search"
@@ -197,8 +192,7 @@
       </div>
     </div>
 
-    <!-- Mobile menu -->
-
+    <!-- Mobile Menu -->
     <BaseDialog
       v-model="isMenuOpen"
       position="right"
@@ -209,8 +203,11 @@
       custom-main-class="lg:hidden"
     >
       <div dir="rtl" class="flex h-full flex-col text-dark-brown">
-        <!-- Menu header -->
-        <div class="flex items-center justify-between bg-burgundy px-5 py-5 text-cream">
+        <!-- Menu Header -->
+        <div
+          class="flex items-center justify-between
+                 bg-burgundy px-5 py-5 text-cream"
+        >
           <NuxtLink
             to="/"
             class="flex flex-col"
@@ -219,8 +216,9 @@
             <span class="text-xl tracking-[0.16em] text-gold">
               GOLDEN
             </span>
+
             <span class="text-[8px] tracking-[0.2em] text-cream/70">
-              JEWELRY & GOLD
+              JEWELRY &amp; GOLD
             </span>
           </NuxtLink>
 
@@ -238,13 +236,15 @@
           </BaseBtn>
         </div>
 
-        <!-- Navigation links -->
+        <!-- Navigation Links -->
         <nav class="flex-1 overflow-y-auto px-5 py-4">
           <NuxtLink
             v-for="item in navigation"
             :key="item.to"
             :to="item.to"
-            class="flex items-center justify-between border-b border-nude/25 py-5 text-sm transition-colors hover:text-burgundy"
+            class="flex items-center justify-between
+                   border-b border-nude/25 py-5
+                   text-sm transition-colors hover:text-burgundy"
             @click="isMenuOpen = false"
           >
             <span>{{ item.label }}</span>
@@ -266,7 +266,7 @@
           </NuxtLink>
         </nav>
 
-        <!-- Menu footer -->
+        <!-- Menu Footer -->
         <div class="border-t border-nude/25 px-5 py-4">
           <p class="text-xs leading-6 text-dark-brown/65">
             زیبایی ماندگار، انتخابی برای همیشه
@@ -274,7 +274,6 @@
         </div>
       </div>
     </BaseDialog>
-
   </header>
 </template>
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppFooter from '~/components/layout/AppFooter.vue';
 import AppHeader from '~/components/layout/AppHeader.vue';
+import MobileBottomNav from '~/components/layout/MobileBottomNav.vue';
 
 </script>
 
@@ -15,6 +16,8 @@ import AppHeader from '~/components/layout/AppHeader.vue';
       <slot />
     </main>
 
+     <MobileBottomNav />
+     
     <AppFooter />
   </div>
 </template>
