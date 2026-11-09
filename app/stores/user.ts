@@ -16,7 +16,7 @@ export const useUserStore = defineStore('user', () => {
     path: '/',
   })
 
-  const user = ref<User | null>(null)
+  const user = ref<any>(null)
 
   const isLoggedIn = computed(() => !!accessToken.value)
   const isAdmin = computed(() => user.value?.role === 'ADMIN')
@@ -29,8 +29,8 @@ export const useUserStore = defineStore('user', () => {
   async function fetchUser() {
     if (!accessToken.value) return
     const { $api } = useNuxtApp()
-    const res = await $api<{ data: User }>('/auth/me')
-    user.value = res.data
+    const res = await $api<{ data: { userId: string, role: 'ADMIN' | 'CUSTOMER' } }>('/users/me')
+    user.value = { id: res.data.userId, role: res.data.role }
   }
 
   function logout() {

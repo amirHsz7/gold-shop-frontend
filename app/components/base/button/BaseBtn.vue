@@ -1,3 +1,79 @@
+<template>
+  <component
+    :is="tag"
+    v-bind="attrs"
+    :to="to"
+    :replace="to ? replace : undefined"
+    :href="href"
+    :target="href ? target : undefined"
+    :type="tag === 'button' ? type : undefined"
+    :tabindex="tabindex"
+    :class="classes"
+    :style="customStyle"
+    :disabled="tag === 'button' ? disable || loading : undefined"
+    :aria-disabled="disable || loading ? 'true' : undefined"
+    @click="onClick"
+    v-ripple="ripple !== false && !disable && !loading"
+  >
+    <span
+      v-if="percentage !== undefined && percentage > 0"
+      class="absolute inset-y-0 left-0 bg-white/20 transition-all duration-200 z-0"
+      :style="{ width: `${Math.max(0, Math.min(100, percentage))}%` }"
+    />
+
+    <span
+      v-if="!disable && !loading"
+      class="absolute inset-0 pointer-events-none transition-opacity duration-200 z-0"
+      :class="overlayClass"
+    />
+
+    <span
+      class="relative z-10 flex items-center gap-2"
+      :class="[loading ? 'invisible' : 'visible', innerBtnClass]"
+    >
+      <slot name="icon">
+        <i v-if="icon" :class="icon" aria-hidden="true" />
+      </slot>
+
+      <slot>
+        <span v-if="label">{{ label }}</span>
+      </slot>
+
+      <slot name="icon-right">
+        <i v-if="iconRight" :class="iconRight" aria-hidden="true" />
+      </slot>
+    </span>
+
+    <span
+      v-if="loading"
+      class="absolute inset-0 z-20 flex items-center justify-center"
+    >
+      <slot name="loading">
+        <svg
+          class="animate-spin w-5 h-5"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+      </slot>
+    </span>
+  </component>
+</template>
+
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
 import { vRipple } from '@/directives/vRipple'
@@ -67,6 +143,49 @@ const props = defineProps({
 
 const emit = defineEmits(['click'])
 const attrs = useAttrs()
+
+// کلاس‌ها باید به‌صورت رشته‌ی کامل نوشته شوند تا Tailwind آن‌ها را بسازد
+type ColorPreset = {
+  solidBg: string
+  solidText: string
+  solidHover: string
+  lineBorder: string // حالت outline
+  lineText: string // متن در حالت outline و flat
+  lineHover: string // هاور در حالت outline و flat
+}
+
+const COLOR_MAP: Record<string, ColorPreset> = {
+  black: {
+    solidBg: 'bg-black',
+    solidText: 'text-white',
+    solidHover: 'hover:bg-black/90',
+    lineBorder: 'border-black',
+    lineText: 'text-black',
+    lineHover: 'hover:bg-black/10',
+  },
+  white: {
+    solidBg: 'bg-white',
+    solidText: 'text-gray-900',
+    solidHover: 'hover:bg-white/90',
+    lineBorder: 'border-white',
+    lineText: 'text-white',
+    lineHover: 'hover:bg-white/10',
+  },
+  gray: {
+    solidBg: 'bg-gray-200',
+    solidText: 'text-gray-800',
+    solidHover: 'hover:bg-gray-300',
+    lineBorder: 'border-gray-300',
+    lineText: 'text-gray-700',
+    lineHover: 'hover:bg-gray-100',
+  },
+}
+
+const TEXT_COLOR_MAP: Record<string, string> = {
+  black: 'text-black',
+  white: 'text-white',
+  gray: 'text-gray-700',
+}
 
 const tag = computed(() => {
   if (props.to) return 'router-link'
@@ -170,34 +289,44 @@ const baseClasses = computed(() => [
 ])
 
 const textColorClass = computed(() => {
-  return props.textColor ? `text-${props.textColor}` : ''
+  if (!props.textColor) return ''
+
+  return TEXT_COLOR_MAP[props.textColor] ?? `text-${props.textColor}`
 })
 
 const variantClasses = computed(() => {
   const color = props.color
+  const preset = COLOR_MAP[color]
   const txt = textColorClass.value
+  const canHover = !!color && !props.disable
+
+  // رنگ متن در حالت‌های flat و outline
+  const lineText = txt || (preset ? preset.lineText : color ? `text-${color}` : '')
+
+  // هاور در حالت‌های flat و outline
+  const lineHover = canHover
+    ? preset
+      ? preset.lineHover
+      : `hover:bg-${color}/10`
+    : ''
 
   if (props.flat) {
-    return [
-      'bg-transparent',
-      txt || (color ? `text-${color}` : ''),
-      color && !props.disable ? `hover:bg-${color}/10` : '',
-    ]
+    return ['bg-transparent', lineText, lineHover]
   }
 
   if (props.outline) {
     return [
       'bg-transparent border',
-      color ? `border-${color}` : '',
-      txt || (color ? `text-${color}` : ''),
-      color && !props.disable ? `hover:bg-${color}/10` : '',
+      preset ? preset.lineBorder : color ? `border-${color}` : '',
+      lineText,
+      lineHover,
     ]
   }
 
   const contained = [
-    color ? `bg-${color}` : 'bg-gray-200',
-    txt || (color ? 'text-white' : 'text-gray-800'),
-    color && !props.disable ? `hover:bg-${color}/90` : '',
+    preset ? preset.solidBg : color ? `bg-${color}` : 'bg-gray-200',
+    txt || (preset ? preset.solidText : color ? 'text-white' : 'text-gray-800'),
+    canHover ? (preset ? preset.solidHover : `hover:bg-${color}/90`) : '',
   ]
 
   if (!props.unelevated && !props.push && !props.flat && !props.outline) {
@@ -211,6 +340,12 @@ const classes = computed(() => [...baseClasses.value, ...variantClasses.value])
 
 const overlayClass = computed(() => {
   if (props.flat || props.outline) return 'bg-current opacity-0 group-hover:opacity-10'
+
+  // روی پس‌زمینه‌ی روشن، لایه‌ی سفید دیده نمی‌شود
+  if (props.color === 'white' || props.color === 'gray') {
+    return 'bg-black opacity-0 group-hover:opacity-5'
+  }
+
   return 'bg-white opacity-0 group-hover:opacity-20'
 })
 
@@ -232,79 +367,3 @@ const customStyle = computed(() => {
   return style
 })
 </script>
-
-<template>
-  <component
-    :is="tag"
-    v-bind="attrs"
-    :to="to"
-    :replace="to ? replace : undefined"
-    :href="href"
-    :target="href ? target : undefined"
-    :type="tag === 'button' ? type : undefined"
-    :tabindex="tabindex"
-    :class="classes"
-    :style="customStyle"
-    :disabled="tag === 'button' ? disable || loading : undefined"
-    :aria-disabled="disable || loading ? 'true' : undefined"
-    @click="onClick"
-    v-ripple="ripple !== false && !disable && !loading"
-  >
-    <span
-      v-if="percentage !== undefined && percentage > 0"
-      class="absolute inset-y-0 left-0 bg-white/20 transition-all duration-200 z-0"
-      :style="{ width: `${Math.max(0, Math.min(100, percentage))}%` }"
-    />
-
-    <span
-      v-if="!disable && !loading"
-      class="absolute inset-0 pointer-events-none transition-opacity duration-200 z-0"
-      :class="overlayClass"
-    />
-
-    <span
-      class="relative z-10 flex items-center gap-2"
-      :class="[loading ? 'invisible' : 'visible', innerBtnClass]"
-    >
-      <slot name="icon">
-        <i v-if="icon" :class="icon" aria-hidden="true" />
-      </slot>
-
-      <slot>
-        <span v-if="label">{{ label }}</span>
-      </slot>
-
-      <slot name="icon-right">
-        <i v-if="iconRight" :class="iconRight" aria-hidden="true" />
-      </slot>
-    </span>
-
-    <span
-      v-if="loading"
-      class="absolute inset-0 z-20 flex items-center justify-center"
-    >
-      <slot name="loading">
-        <svg
-          class="animate-spin w-5 h-5"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            class="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            stroke-width="4"
-          ></circle>
-          <path
-            class="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
-        </svg>
-      </slot>
-    </span>
-  </component>
-</template>
