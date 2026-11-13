@@ -21,7 +21,7 @@
     >
       <div class="absolute top-0 left-0 w-full h-0.5 ">
         <div 
-          class="absolute top-0 left-0 w-full h-full bg-primary-500 transform anim animate-[loading-bar_1.5s_ease-in-out_infinite]"
+          class="absolute top-0 left-0 w-full h-full bg-burgundy transform anim animate-[loading-bar_1.5s_ease-in-out_infinite]"
         ></div>
           <!-- :class="isCustomColor ? '' : `bg-${color}`"
           :style="isCustomColor ? { backgroundColor: color } : undefined" -->
@@ -590,7 +590,7 @@ const handleGeneralClasses = computed(() => {
   const baseClasses = [
     'w-full relative ',
     props.flat ? 'shadow-none' : 'shadow-md',
-    props.bordered ? 'border' : '',
+    props.bordered ? 'border border-[#EDEEF0]' : '',
     props.square ? '' : 'rounded',
     props.tableClass,
     props.error || props.empty ? 'overflow-hidden' : 'overflow-x-auto'

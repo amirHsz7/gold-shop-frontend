@@ -293,7 +293,7 @@ onMounted(() => {
   if (anchorMarkerRef.value) {
     const rootNode = anchorMarkerRef.value.getRootNode()
     const queryRoot = rootNode as ParentNode
-    const candidate = queryRoot.querySelector('.local-root') || queryRoot.querySelector('#local-root')
+    const candidate = queryRoot.querySelector('body')
     teleportTarget.value = candidate instanceof HTMLElement ? candidate : null
   }
 

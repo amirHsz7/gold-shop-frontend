@@ -188,7 +188,9 @@ import { ref, watch, onBeforeUnmount } from 'vue';
 import BaseBtn from '@/components/base/button/BaseBtn.vue';
 import BaseDialog from '@/components/base/dialog/BaseDialog.vue';
 import Cropper from 'cropperjs';
+import type { PropType } from 'vue'
 
+type UploaderValue = File | string | Array<File | string> | null
 interface PreviewFile {
   file?: File;
   preview: string;
@@ -197,14 +199,15 @@ interface PreviewFile {
 
 const props = defineProps({
   modelValue: {
-    type: [Array, Object, String],
-    default: () => []
+    type: [Array, Object, String] as PropType<UploaderValue>,
+    default: () => [],
   },
   title: { type: String, default: 'آپلود تصاویر' },
   accept: { type: String, default: 'image/*' },
   multiple: { type: Boolean, default: false },
   maxSize: { type: Number, default: 5 * 1024 * 1024 },
-  showChangeButton: { type: Boolean, default: true }, 
+  showChangeButton: { type: Boolean, default: true },
+  cropWidth: { type: Number, default: 800 }, 
   
   // Profile mode Props
   profile: { type: Boolean, default: false },
@@ -367,8 +370,10 @@ const confirmCrop = () => {
   
   try {
     const canvas = cropperInstance.getCroppedCanvas({
-      width: 800,
-      height: props.profile ? 800 : Math.round(800 / props.cropAspectRatio),
+      width: props.cropWidth,
+      height: props.profile
+        ? props.cropWidth
+        : Math.round(props.cropWidth / props.cropAspectRatio),
       imageSmoothingEnabled: true,
       imageSmoothingQuality: 'high'
     });

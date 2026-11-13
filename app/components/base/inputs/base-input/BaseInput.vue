@@ -92,6 +92,7 @@ const props = defineProps({
   rows: { type: [Number, String], default: 3 },
   truncateError: { type: Boolean, default: true },
   disableResize: { type: Boolean, default: false },
+  boxClass: { type: [String, Array, Object], default: '' },
   financial: { type: Boolean, default: false },
   allowNegative: { type: Boolean, default: false },
   placeholder: String,

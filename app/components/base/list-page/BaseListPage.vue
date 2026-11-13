@@ -3,7 +3,7 @@
 
     <!-- Header & Actions -->
     <div
-      class="flex px-4 md:py-4 md:px-0 flex-col md:flex-row md:items-center gap-0 md:gap-2 w-full md:justify-between"
+      class="flex px-4 md:py-4 md:px-0 flex-col! md:flex-row md:items-center gap-0 md:gap-2 w-full md:justify-between"
       :class="!showBackToPrevVersionBtn && 'mt-4'"
     >
       <div class="flex items-center flex-wrap gap-2 w-full">
@@ -81,7 +81,7 @@
     <!-- Search & Table Details -->
     <div class="flex mx-4 md:mx-0 flex-col  gap-3 md:gap-4">
       <!-- Search & Filters -->
-      <div class="flex items-center gap-2">
+      <div class="flex flex-col gap-2">
         <BaseInput
           v-if="showSearchInput"
           v-model="searchQuery"
@@ -175,7 +175,7 @@
     </BaseTable>
 
     <!-- Pagination Footer -->
-    <div v-if="!serverSidePagination && totalElements > 10" class="py-5 px-4 grid grid-cols-2 gap-3 items-center md:flex md:justify-between border border-[#EDEEF0] bg-white md:rounded-[10px]">
+    <div v-if="totalElements > 10" class="py-5 px-4 grid grid-cols-2 gap-3 items-center md:flex md:justify-between border border-[#EDEEF0] bg-white md:rounded-[10px]">
       
       <div class="col-span-1 text-nowrap flex gap-2 items-center text-primary-text text-sm">
         <span>نمایش</span>
@@ -185,8 +185,8 @@
         >
           <BaseList padding class="!pb-2">
             <BaseItem v-for="i in rowsPerPageOptions" :key="i" clickable @click="$emit('update:rowsPerPage', i); $emit('update:page', 0)" class="!px-2 hover:bg-gray-50 !gap-3">              {{ toFaNumber(i) }}
-                </BaseItem>
-            </BaseList>
+            </BaseItem>
+          </BaseList>
         </BaseBtnDropdown>
         <span>از ۵۰</span>
       </div>
@@ -215,7 +215,6 @@
     <BaseToast />
     <slot name="dialogs"></slot>
 
-    <div id="local-root" class="!z-[9999]"></div>
   </div>
 </template>
 

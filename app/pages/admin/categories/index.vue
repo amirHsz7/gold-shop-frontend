@@ -1,6 +1,6 @@
 
 <template>
-  <main dir="rtl" class="mx-auto max-w-5xl px-4 py-6">
+  <main dir="rtl" class=" px-4 py-6">
     <header class="mb-4 flex items-center justify-between">
       <h1 class="text-xl font-semibold text-gray-800">دسته‌بندی‌ها</h1>
 

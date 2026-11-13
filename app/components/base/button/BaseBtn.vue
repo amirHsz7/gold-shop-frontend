@@ -179,12 +179,57 @@ const COLOR_MAP: Record<string, ColorPreset> = {
     lineText: 'text-gray-700',
     lineHover: 'hover:bg-gray-100',
   },
+burgundy: {
+    solidBg: 'bg-burgundy',
+    solidText: 'text-white',
+    solidHover: 'hover:bg-burgundy/90',
+    lineBorder: 'border-burgundy',
+    lineText: 'text-burgundy',
+    lineHover: 'hover:bg-burgundy/10',
+  },
+  gold: {
+    solidBg: 'bg-gold',
+    solidText: 'text-dark-brown',
+    solidHover: 'hover:bg-gold/90',
+    lineBorder: 'border-gold',
+    lineText: 'text-gold',
+    lineHover: 'hover:bg-gold/10',
+  },
+  cream: {
+    solidBg: 'bg-cream',
+    solidText: 'text-dark-brown',
+    solidHover: 'hover:bg-cream/90',
+    lineBorder: 'border-cream',
+    lineText: 'text-cream',
+    lineHover: 'hover:bg-cream/10',
+  },
+  'dark-brown': {
+    solidBg: 'bg-dark-brown',
+    solidText: 'text-white',
+    solidHover: 'hover:bg-dark-brown/90',
+    lineBorder: 'border-dark-brown',
+    lineText: 'text-dark-brown',
+    lineHover: 'hover:bg-dark-brown/10',
+  },
+  nude: {
+    solidBg: 'bg-nude',
+    solidText: 'text-white',
+    solidHover: 'hover:bg-nude/90',
+    lineBorder: 'border-nude',
+    lineText: 'text-nude',
+    lineHover: 'hover:bg-nude/10',
+  },
 }
 
 const TEXT_COLOR_MAP: Record<string, string> = {
   black: 'text-black',
   white: 'text-white',
   gray: 'text-gray-700',
+  burgundy: 'text-burgundy',
+  gold: 'text-gold',
+  cream: 'text-cream',
+  nude: 'text-nude',
+  'dark-brown': 'text-dark-brown',
 }
 
 const tag = computed(() => {

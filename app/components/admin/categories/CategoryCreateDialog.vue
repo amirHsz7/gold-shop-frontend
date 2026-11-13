@@ -80,7 +80,8 @@
             v-model="name"
             label="نام دسته‌بندی"
             maxlength="100"
-            :disabled="locked"
+            :disabled="locked"3
+            dense
             :error="!!fieldErrors.name"
             :error-message="fieldErrors.name"
           />
@@ -93,6 +94,7 @@
             :disabled="locked"
             :hint="slugChanged ? 'با تغییر اسلاگ، لینک‌های قبلی این دسته از کار می‌افتند.' : undefined"
             :error="!!fieldErrors.slug"
+            dense
             :error-message="fieldErrors.slug"
           />
 
@@ -103,6 +105,7 @@
             :options="parentSelectOptions"
             emit-value
             clearable
+            dense
             :dialog="isMobile"
             dialog-title="انتخاب دسته‌ی والد"
             :disabled="locked || hasChildren"
@@ -117,6 +120,7 @@
             label="ترتیب نمایش"
             min="0"
             step="1"
+            dense
             :disabled="locked"
             :error="!!fieldErrors.sortOrder"
             :error-message="fieldErrors.sortOrder"
@@ -153,7 +157,7 @@
       </BaseForm>
 
       <!-- Footer -->
-      <div v-if="isMobile" class="flex bg-white fixed bottom-0 w-full justify-start gap-2 border-t border-gray-200 px-5 py-3">
+      <div v-if="isMobile" class="flex z-10 bg-white fixed bottom-0 w-full justify-start gap-2 border-t border-gray-200 px-5 py-3">
         <BaseBtn color="black" class="w-full!" :loading="isSaving" @click="submit">
           {{ saveLabel }}
         </BaseBtn>

@@ -6,14 +6,7 @@
     <label
       v-if="label || $slots.label"
       class="mb-1 block font-medium transition-colors duration-200"
-      :class="[
-        dense ? 'text-xs' : 'text-sm',
-        hasError
-          ? 'text-burgundy'
-          : focused
-            ? 'text-burgundy'
-            : 'text-dark-brown',
-      ]"
+      :class="[dense ? 'text-xs' : 'text-sm', labelColorClass]"
     >
       <slot name="label">{{ label }}</slot>
     </label>
@@ -24,19 +17,8 @@
       </div>
 
       <div
-        class="relative flex flex-grow items-center overflow-hidden rounded-xl border bg-white transition-all duration-200"
-        :class="[
-          type === 'textarea'
-            ? 'items-start py-2'
-            : dense
-              ? 'h-[2.5em]'
-              : 'h-[3em]',
-          hasError
-            ? 'border-burgundy ring-1 ring-burgundy'
-            : focused
-              ? 'border-burgundy ring-1 ring-burgundy'
-              : 'border-nude/30 hover:border-nude',
-        ]"
+        class="relative flex flex-grow overflow-hidden rounded-xl border transition-all duration-200"
+        :class="[layoutClass, surfaceClass, borderClass, boxClass]"
       >
         <div
           v-if="$slots.prepend"
@@ -51,27 +33,16 @@
           :class="[
             type !== 'textarea' ? 'items-center' : '',
             $slots.prepend ? 'ps-2' : 'ps-3',
-            $slots.append ||
-            (clearable && hasValue && !disabled && !readonly) ||
-            loading
-              ? 'pe-2'
-              : 'pe-3',
+            hasAppend ? 'pe-2' : 'pe-3',
           ]"
         >
           <slot name="control"></slot>
         </div>
 
         <div
-          v-if="
-            $slots.append ||
-            (clearable && hasValue && !disabled && !readonly) ||
-            loading
-          "
-          class="flex h-full gap-2 text-nude"
-          :class="[
-            type === 'textarea' ? 'pt-1' : 'items-center',
-            $slots.append ? 'pe-3' : 'pe-3',
-          ]"
+          v-if="hasAppend"
+          class="flex h-full gap-2 pe-3 text-nude"
+          :class="[type === 'textarea' ? 'pt-1' : 'items-center']"
         >
           <button
             v-if="clearable && hasValue && !disabled && !readonly"
@@ -93,7 +64,7 @@
 
           <div
             v-if="loading"
-            class="h-4 w-4 animate-spin rounded-full border-2 border-burgundy border-t-transparent"
+            class="animate-spin rounded-full border-2 border-burgundy border-t-transparent"
             :class="dense ? 'h-4 w-4' : 'h-5 w-5'"
             role="status"
             aria-label="در حال بارگذاری"
@@ -118,13 +89,14 @@
     >
       <div
         v-if="hasError"
-        class="text-burgundy"
-        :class="truncateError ? 'truncate' : ''"
+        class="text-red-600"
+        :class="truncateError ? 'truncate' : 'break-words'"
       >
         <slot name="error">{{ errorMessage }}</slot>
       </div>
 
-      <div v-else-if="hint" class="truncate text-nude">
+      <!-- راهنما بریده نمی‌شود و در چند خط می‌شکند -->
+      <div v-else-if="hint" class="break-words text-nude">
         <slot name="hint">{{ hint }}</slot>
       </div>
 
@@ -151,6 +123,7 @@ const props = defineProps({
   disabled: Boolean,
   readonly: Boolean,
   truncateError: { type: Boolean, default: true },
+  boxClass: { type: [String, Array, Object], default: '' },
   loading: Boolean,
   clearable: Boolean,
   counter: Boolean,
@@ -170,4 +143,38 @@ defineEmits(['clear'])
 const slots = useSlots()
 
 const hasError = computed(() => props.error || !!props.errorMessage)
+
+const hasAppend = computed(
+  () =>
+    !!slots.append
+    || (props.clearable && props.hasValue && !props.disabled && !props.readonly)
+    || props.loading,
+)
+
+// هم‌ترازی و ارتفاع: textarea ارتفاع آزاد دارد و بقیه ارتفاع ثابت
+const layoutClass = computed(() => {
+  if (props.type === 'textarea') return 'items-start py-2'
+
+  return ['items-center', props.dense ? 'h-[2.5em]' : 'h-[3em]']
+})
+
+// فیلد غیرفعال یا فقط‌خواندنی پس‌زمینه‌ی کمی خاکستری می‌گیرد
+const surfaceClass = computed(() =>
+  props.disabled || props.readonly ? 'bg-gray-50' : 'bg-white',
+)
+
+// خطا قرمز است و از فوکوس فرق دارد
+const borderClass = computed(() => {
+  if (hasError.value) return 'border-red-500 ring-1 ring-red-500'
+  if (props.focused) return 'border-burgundy ring-1 ring-burgundy'
+
+  return 'border-nude/30 hover:border-nude'
+})
+
+const labelColorClass = computed(() => {
+  if (hasError.value) return 'text-red-600'
+  if (props.focused) return 'text-burgundy'
+
+  return 'text-dark-brown'
+})
 </script>

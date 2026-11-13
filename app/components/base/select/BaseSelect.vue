@@ -103,11 +103,11 @@
       :offset="[0, 4]"
       fit
       :max-height="searchable ? '300px' : '240px'"
-      :content-class="[
+      :contentClass="[
         '!z-[100100] !rounded-md !border-gray-200 !bg-white !shadow-lg',
         popupContentClass,
       ]"
-      :content-style="popupContentStyle"
+      :contentStyle="popupContentStyle"
     >
       <div
         v-if="searchable"
@@ -527,8 +527,7 @@ const validate = async () => {
 
   if (!props.rules || props.rules.length === 0) return true
 
-  for (let i = 0; i < props.rules.length; i++) {
-    const rule = props.rules[i]
+  for (const rule of props.rules) {
     let res = rule(props.modelValue)
     if (res instanceof Promise) res = await res
 
@@ -538,6 +537,7 @@ const validate = async () => {
       return false
     }
   }
+
   return true
 }
 
