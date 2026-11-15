@@ -58,50 +58,56 @@
 </template>
 
 <script setup lang="ts">
+import BaseBtn from '@/components/base/button/BaseBtn.vue'
+
 const AUTOPLAY_MS = 5000
 
-// قیمت هر گرم طلا: فعلاً ثابت است و بعد از ماژول قیمت از API خوانده می‌شود
-const goldPricePerGram = 7450000
+const pricing = usePricingStore()
 
-const formatPrice = (value: number) =>
-  new Intl.NumberFormat('fa-IR').format(value).replace(/٬/g, ',')
-
-const announcements = [
+const announcements = computed(() => [
   {
     id: 'free-shipping',
     icon: 'lucide:gem',
     text: 'ارسال رایگان برای خرید بالای ۱۰ میلیون تومان',
   },
-  {
-    id: 'gold-price',
-    icon: 'lucide:chart-no-axes-combined',
-    text: `قیمت طلا امروز: هر گرم ${formatPrice(goldPricePerGram)} تومان`,
-  },
+  // بدون قیمت طلا نمایش داده نمی‌شود
+  ...(pricing.goldPricePerGram
+    ? [
+        {
+          id: 'gold-price',
+          icon: 'lucide:chart-no-axes-combined',
+          text: `قیمت طلا امروز: هر گرم ${formatToman(pricing.goldPricePerGram)} تومان`,
+        },
+      ]
+    : []),
   {
     id: 'authenticity',
     icon: 'lucide:shield-check',
     text: 'ضمانت اصالت کالا همراه با فاکتور رسمی',
   },
-]
+])
 
 const index = ref(0)
 const paused = ref(false)
 
 // دو اطلاعیه‌ی پشت‌سر‌هم کنار هم نمایش داده می‌شوند
 const visibleItems = computed(() => {
-  const count = announcements.length
-  const first = announcements[index.value % count]
-  const second = announcements[(index.value + 1) % count]
+  const list = announcements.value
+  const count = list.length
+  const first = list[index.value % count]
+  const second = list[(index.value + 1) % count]
 
-  return first && second && count > 1 ? [first, second] : announcements
+  return first && second && count > 1 ? [first, second] : list
 })
 
 const next = () => {
-  index.value = (index.value + 1) % announcements.length
+  index.value = (index.value + 1) % announcements.value.length
 }
 
 const prev = () => {
-  index.value = (index.value - 1 + announcements.length) % announcements.length
+  const count = announcements.value.length
+
+  index.value = (index.value - 1 + count) % count
 }
 
 let timer: ReturnType<typeof setInterval> | undefined

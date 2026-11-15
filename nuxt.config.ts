@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     public: {
       // مرورگر از پروکسی رد میشه
       apiBaseUrl: '/backend',
+      manualGoldPrice: 0,
     },
   },
   vite: {

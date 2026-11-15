@@ -1,42 +1,20 @@
+<template>
+  <div class="px-4 py-8 lg:px-12">
+    <ul class="m-0 grid list-none grid-cols-2 gap-3 p-0 lg:grid-cols-4 lg:gap-5">
+      <li v-for="(product, index) in products" :key="product.id">
+        <SiteProductCard :product="product" :priority="index < 4" wishlist />
+      </li>
+    </ul>
+  </div>
+</template>
 
 <script setup lang="ts">
-import { healthRepository } from '~/repositories/health';
+import type { PublicProduct } from '~/types/product'
 
-const healthRepo = healthRepository()
+const { data } = useApiFetch<{
+  status: string
+  data: { items: PublicProduct[] }
+}>('/products?limit=8', { key: 'card-test' })
 
-const {
-  data,
-  status,
-  error,
-  refresh,
-} = await healthRepo.testAuth()
-console.log('sss',status);
-
+const products = computed(() => data.value?.data.items ?? [])
 </script>
-
-<template>
-  <main class="p-6" dir="rtl">
-    <h1 class="mb-4 text-2xl font-bold">
-      تست اتصال به بک‌اند
-    </h1>
-
-    <p v-if="status === 'pending'">
-      در حال بررسی اتصال...
-    </p>
-
-    <p v-else-if="error" class="text-red-600">
-      خطا در اتصال: {{ error.message }}
-    </p>
-
-    <div v-else>
-      <p>وضعیت پاسخ: {{ data?.data.userId }}</p>
-
-      <button
-        class="mt-4 rounded bg-gray-900 px-4 py-2 text-white"
-        @click="refresh()"
-      >
-        تست مجدد
-      </button>
-    </div>
-  </main>
-</template>

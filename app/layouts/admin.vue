@@ -1,5 +1,3 @@
-
-Admin · VUE
 <script setup lang="ts">
 useHead({ htmlAttrs: { dir: 'rtl', lang: 'fa' } })
  
