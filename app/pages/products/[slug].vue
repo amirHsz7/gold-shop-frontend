@@ -151,42 +151,53 @@
       </div>
 
       <!-- توضیحات و مشخصات -->
-      <section class="mt-12 lg:mt-16">
-        <div class="flex gap-8 border-b border-nude/20">
+      <nav
+        aria-label="بخش‌های صفحه"
+        class="sticky top-16 z-30 -mx-4 mt-12 border-b border-nude/20 bg-cream/95 backdrop-blur lg:top-20 lg:-mx-6 lg:mt-16 xl:-mx-12"
+      >
+        <div :class="['flex gap-6 lg:gap-8', SITE_GUTTER]">
           <button
-            v-for="tab in tabs"
-            :key="tab.key"
+            v-for="section in sections"
+            :key="section.id"
             type="button"
-            class="-mb-px border-b-[3px] px-1 py-3 text-sm lg:text-base"
-            :class="activeTab === tab.key ? 'border-burgundy font-bold text-burgundy' : 'border-transparent text-dark-brown/60'"
-            @click="activeTab = tab.key"
+            class="-mb-px whitespace-nowrap border-b-[3px] px-1 py-3 text-sm transition-colors lg:text-base"
+            :class="
+              activeSection === section.id
+                ? 'border-burgundy font-bold text-burgundy'
+                : 'border-transparent text-dark-brown/60 hover:text-dark-brown'
+            "
+            :aria-current="activeSection === section.id ? 'true' : undefined"
+            @click="scrollToSection(section.id)"
           >
-            {{ tab.label }}
+            {{ section.label }}
           </button>
         </div>
+      </nav>
 
-        <div class="pt-6">
-          <p
-            v-if="activeTab === 'description'"
-            class="max-w-3xl whitespace-pre-line text-sm leading-loose lg:text-base"
-          >
-            {{ product.description || 'توضیحاتی برای این محصول ثبت نشده است.' }}
-          </p>
+      <!-- توضیحات -->
+      <section id="description" class="scroll-mt-32 pt-8 lg:scroll-mt-36 lg:pt-10" aria-labelledby="description-title">
+        <h2 id="description-title" class="mb-4 text-lg font-bold text-dark-brown lg:text-xl">توضیحات</h2>
+        <p class="max-w-3xl whitespace-pre-line text-sm leading-loose lg:text-base">
+          {{ product.description || 'توضیحاتی برای این محصول ثبت نشده است.' }}
+        </p>
+      </section>
 
-          <dl v-else class="max-w-xl text-sm">
-            <div v-for="row in specs" :key="row.label" class="flex justify-between border-b border-nude/20 py-3">
-              <dt class="text-dark-brown/60">{{ row.label }}</dt>
-              <dd>{{ row.value }}</dd>
-            </div>
-          </dl>
-        </div>
+      <!-- مشخصات -->
+      <section id="specs" class="scroll-mt-32 pt-10 lg:scroll-mt-36 lg:pt-12" aria-labelledby="specs-title">
+        <h2 id="specs-title" class="mb-2 text-lg font-bold text-dark-brown lg:text-xl">مشخصات</h2>
+        <dl class="max-w-xl text-sm">
+          <div v-for="row in specs" :key="row.label" class="flex justify-between border-b border-nude/20 py-3">
+            <dt class="text-dark-brown/60">{{ row.label }}</dt>
+            <dd>{{ row.value }}</dd>
+          </div>
+        </dl>
       </section>
 
       <!-- نظرات -->
-      <div class="mt-12 lg:mt-16">
+      <section id="reviews" class="scroll-mt-32 pt-10 lg:scroll-mt-36 lg:pt-12" aria-labelledby="reviews-title">
+        <h2 id="reviews-title" class="mb-4 text-lg font-bold text-dark-brown lg:text-xl">نظرات مشتریان</h2>
         <ProductReviews :slug="product.slug" />
-      </div>
-
+      </section>
       <!-- محصولات مرتبط (خودش padding کنار دارد) -->
 
     <ProductRelated
@@ -204,6 +215,7 @@ import BaseBtn from '~/components/base/button/BaseBtn.vue'
 import type { PublicProduct } from '~/types/product'
 import { calcVariantBreakdown } from '~/utils/pricing'
 
+import type { CommentsResponse } from '~/types/comment'
 
 const { notify } = useToast()
 
@@ -232,6 +244,14 @@ if (error.value) {
 }
 
 const product = computed(() => data.value?.data ?? null)
+
+
+const { data: commentsData } = await useApiFetch<CommentsResponse>(
+  () => `/products/${slug.value}/comments`,
+  { key: `comments-${slug.value}`, query: { page: 1, limit: 10 } },
+)
+
+const commentCount = computed(() => commentsData.value?.data.pagination.total ?? 0)
 
 const assetUrl = useAssetUrl()
 
@@ -298,13 +318,70 @@ const notifyInfo = (message: string) =>
 // ماژول سبد خرید هنوز ساخته نشده است
 const addToCart = () => notifyInfo('سبد خرید به‌زودی فعال می‌شود')
 
-// ───── تب‌ها ─────
-const tabs = [
-  { key: 'description', label: 'توضیحات' },
-  { key: 'specs', label: 'مشخصات' },
-] as const
+// ───── بخش‌های صفحه (تب‌های چسبان) ─────
+const sections = computed(() => {
+  const count = product.value?.rating.count ?? 0
 
-const activeTab = ref<(typeof tabs)[number]['key']>('description')
+  return [
+    { id: 'description', label: 'توضیحات' },
+    { id: 'specs', label: 'مشخصات' },
+    {
+      id: 'reviews',
+      label: commentCount.value > 0 ? `نظرات (${toFa(commentCount.value)})` : 'نظرات',
+    },
+  ]
+})
+
+const activeSection = ref('description')
+
+const scrollToSection = (id: string) => {
+  const el = document.getElementById(id)
+
+  if (!el) return
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+  activeSection.value = id
+}
+
+// تب فعال را با اسکرول به‌روز می‌کند: آخرین بخشی که بالایش از زیر نوار تب‌ها رد شده
+let frame = 0
+
+const updateActiveSection = () => {
+  frame = 0
+
+  const offset = window.innerWidth >= 1024 ? 160 : 144
+  let current = sections.value[0]?.id ?? 'description'
+
+  for (const section of sections.value) {
+    const el = document.getElementById(section.id)
+
+    if (el && el.getBoundingClientRect().top <= offset) current = section.id
+  }
+
+  // ته صفحه: بخش آخر فعال شود
+  const reachedBottom
+    = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4
+
+  if (reachedBottom) current = sections.value.at(-1)?.id ?? current
+
+  activeSection.value = current
+}
+
+const onScroll = () => {
+  if (!frame) frame = requestAnimationFrame(updateActiveSection)
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', onScroll, { passive: true })
+  updateActiveSection()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onScroll)
+  cancelAnimationFrame(frame)
+})
 
 const specs = computed(() => {
   const value = product.value

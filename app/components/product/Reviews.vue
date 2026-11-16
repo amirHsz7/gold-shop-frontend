@@ -1,6 +1,5 @@
 <template>
   <section id="reviews" class="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-12" aria-labelledby="reviews-title">
-    <h2 id="reviews-title" class="sr-only">نظرات مشتریان</h2>
 
     <!-- خلاصه‌ی امتیاز و فرم -->
     <div class="flex flex-col gap-4 self-start rounded-3xl border border-nude/25 bg-white p-5 lg:sticky lg:top-24">
