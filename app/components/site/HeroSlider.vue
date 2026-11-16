@@ -1,8 +1,7 @@
 <template>
   <section
     v-if="loading || items.length > 0"
-    class="py-4 lg:py-6"
-    :class="SITE_GUTTER"
+    :class="[SECTION_SPACING, SITE_GUTTER]"
     dir="rtl"
   >
     <!-- حالت بارگذاری با همان نسبت ابعاد، تا صفحه نپرد -->

@@ -1,7 +1,7 @@
 
 <template>
   <main dir="rtl" class=" px-4 py-6">
-    <header class="mb-4 flex items-center justify-between">
+    <header class="mb-4 flex items-center gap-4 lg:mb-6 lg:gap-6" dir="rtl">
       <h1 class="text-xl font-semibold text-gray-800">دسته‌بندی‌ها</h1>
 
       <BaseBtn color="black" @click="openCreate">

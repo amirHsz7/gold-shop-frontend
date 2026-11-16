@@ -26,3 +26,12 @@ export type ShopInfo = {
   telegram: string | null
   whatsapp: string | null
 }
+
+export type PublicCollection = {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  imageUrl: string | null
+  productCount: number
+}

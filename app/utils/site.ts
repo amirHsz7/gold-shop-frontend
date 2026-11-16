@@ -63,3 +63,36 @@ export const buildSocialUrl = (
     ? `https://instagram.com/${handle}`
     : `https://t.me/${handle}`
 }
+
+// نوار ویژگی‌های زیر اسلایدر اصلی (متن‌ها از طرح است؛ با کارفرما نهایی کن)
+export const SITE_FEATURES = [
+  {
+    key: 'authenticity',
+    icon: 'lucide:gem',
+    title: 'ضمانت اصالت کالا',
+    description: 'همراه با فاکتور رسمی',
+  },
+  {
+    key: 'shipping',
+    icon: 'lucide:truck',
+    title: 'ارسال سریع',
+    description: 'به سراسر کشور',
+  },
+  {
+    key: 'payment',
+    icon: 'lucide:shield-check',
+    title: 'پرداخت امن',
+    description: 'با درگاه امن بانکی',
+  },
+  {
+    key: 'support',
+    icon: 'lucide:headset',
+    title: 'پشتیبانی حرفه‌ای',
+    description: 'پاسخگویی ۲۴ ساعته',
+  },
+] as const
+
+// آدرس کامل با http(s) (برای باز شدن لینک در تب جدید)
+export const isExternalUrl = (url: string) => /^https?:\/\//i.test(url)
+
+export const SECTION_SPACING = 'py-4 lg:py-6'

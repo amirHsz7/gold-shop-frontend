@@ -1,8 +1,7 @@
 <template>
   <section
     v-if="loading || products.length > 0"
-    class="py-8 lg:py-12"
-    :class="SITE_GUTTER"
+    :class="[SECTION_SPACING, SITE_GUTTER]"
     dir="rtl"
     :aria-labelledby="titleId"
   >

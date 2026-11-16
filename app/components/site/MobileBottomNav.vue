@@ -2,7 +2,7 @@
   <nav
     aria-label="منوی پایین"
     dir="rtl"
-    class="fixed inset-x-0 bottom-0 z-40 rounded-t-3xl border-t border-nude/20 bg-cream pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_24px_rgba(48,37,34,0.1)] lg:hidden"
+    class="fixed inset-x-0 bottom-0 z-40 border-t border-nude/20 bg-cream pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_24px_rgba(48,37,34,0.1)] lg:hidden"
   >
     <ul class="m-0 grid list-none grid-cols-4 divide-x divide-nude/25 p-0">
       <li>

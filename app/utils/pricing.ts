@@ -107,3 +107,31 @@ export const getProductPrice = (
     isFrom: highest > cheapest.final,
   }
 }
+
+// ریز قیمت یک وزن برای نمایش به مشتری (همه‌ی مبالغ تومان)
+export const calcVariantBreakdown = (
+  variant: PriceVariant,
+  goldPricePerGram: number,
+  discountPercent = 0,
+  settings: PricingSettings = DEFAULT_PRICING_SETTINGS,
+) => {
+  const weight = toNumber(variant.weight)
+  const feePercent = toNumber(variant.fee)
+
+  const feeAmount = settings.feeAmountInRial
+    ? toNumber(variant.feeAmount) / 10
+    : toNumber(variant.feeAmount)
+
+  const raw = weight * goldPricePerGram
+  const fee = (raw * feePercent) / 100 + feeAmount
+  const profit = ((raw + fee) * settings.sellerProfitPercent) / 100
+  const vat = ((fee + profit) * settings.vatPercent) / 100
+  const { final, original } = calcVariantPrice(
+    variant,
+    goldPricePerGram,
+    discountPercent,
+    settings,
+  )
+
+  return { raw, fee, profit, vat, original, final, discount: original - final }
+}
