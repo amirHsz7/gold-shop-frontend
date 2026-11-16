@@ -57,7 +57,7 @@
             <div class="flex items-center gap-3 text-xs text-dark-brown/70 lg:text-sm">
               <template v-if="product.rating.count > 0">
                 <span class="flex items-center gap-1 font-medium text-dark-brown">
-                  <Icon name="lucide:star" class="text-gold" size="16" />
+                  <ProductStar filled :size="16" />
                   {{ toFa(product.rating.average) }}
                 </span>
                 <span class="text-burgundy">{{ toFa(product.rating.count) }} نظر</span>
@@ -182,7 +182,19 @@
         </div>
       </section>
 
-      <!-- نظرات: مرحله‌ی بعد -->
+      <!-- نظرات -->
+      <div class="mt-12 lg:mt-16">
+        <ProductReviews :slug="product.slug" />
+      </div>
+
+      <!-- محصولات مرتبط (خودش padding کنار دارد) -->
+
+    <ProductRelated
+      v-if="product"
+      :product-id="product.id"
+      :category-slug="product.category.slug"
+      class="-mx-4 lg:-mx-6 xl:-mx-12"
+    />
     </template>
   </div>
 </template>
