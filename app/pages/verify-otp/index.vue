@@ -168,7 +168,7 @@ import { authRepository } from '~/repositories/auth'
 import { useToast } from '@/composables/useToast'
 
 const { notify } = useToast()
-
+usePageSeo({ title: 'تأیید کد', noindex: true })
 definePageMeta({
   layout: 'auth',
 })

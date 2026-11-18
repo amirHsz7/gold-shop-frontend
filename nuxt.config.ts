@@ -7,6 +7,11 @@ export default defineNuxtConfig({
   ],
   
   css: ['@/assets/css/main.css'],
+  app: {
+    head: {
+      htmlAttrs: { lang: 'fa', dir: 'rtl' },
+    },
+  },
   routeRules: {
     '/backend/**': { proxy: 'http://localhost:5000/**' },
   },
@@ -14,7 +19,10 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // فقط سمت سرور Nuxt استفاده میشه (SSR)
     apiServerUrl: 'http://localhost:5000',
+    
     public: {
+      // آدرس نهایی سایت بدون اسلش آخر، برای canonical و تصویر شبکه‌های اجتماعی
+      siteUrl: '',
       // مرورگر از پروکسی رد میشه
       apiBaseUrl: '/backend',
       manualGoldPrice: 0,

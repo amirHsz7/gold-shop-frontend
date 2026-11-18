@@ -13,6 +13,7 @@ const items: NavItem[] = [
   { label: 'محصولات', to: '/admin/products', icon: 'M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m0 10L4 17V7m8 14V11' },
   { label: 'دسته بندی ها', to: '/admin/categories', icon: 'M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m0 10L4 17V7m8 14V11' },
   { label: 'کالکشن ها', to: '/admin/collections', icon: 'M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m0 10L4 17V7m8 14V11' },
+  { label: 'نظرات', to: '/admin/comments', icon: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z' },
   { label: 'سفارش‌ها', to: '/admin/orders', icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 4h13M9 21a1 1 0 100-2 1 1 0 000 2zm8 0a1 1 0 100-2 1 1 0 000 2z' },
   { label: 'قیمت طلا', to: '/admin/gold-price', icon: 'M3 17l6-6 4 4 8-8M14 7h7v7' },
   { label: 'کاربران', to: '/admin/users', icon: 'M17 20h5v-2a4 4 0 00-5-3.9M9 20H2v-2a4 4 0 014-4h3a4 4 0 014 4v2zM12 7a4 4 0 11-8 0 4 4 0 018 0zm8 1a3 3 0 11-6 0 3 3 0 016 0z' },

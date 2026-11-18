@@ -198,6 +198,8 @@ import BaseBtn from '~/components/base/button/BaseBtn.vue'
 import BaseInput from '~/components/base/inputs/base-input/BaseInput.vue'
 import { authRepository } from '~/repositories/auth'
 
+usePageSeo({ title: 'ورود', noindex: true })
+
 definePageMeta({
   layout: 'auth',
 })

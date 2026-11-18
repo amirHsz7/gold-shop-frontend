@@ -12,6 +12,9 @@ export const usePricingStore = defineStore('pricing', () => {
   const config = useRuntimeConfig()
   const manual = Number(config.public.manualGoldPrice)
 
+  // بعد از دریافت تنظیمات از بکند true می‌شود (از SSR به مرورگر هم منتقل می‌شود)
+  const settingsLoaded = ref(false)
+
   const goldPricePerGram = ref<number | null>(manual > 0 ? manual : null)
   const settings = ref<PricingSettings>({ ...DEFAULT_PRICING_SETTINGS })
   const updatedAt = ref<string | null>(null)
@@ -37,6 +40,7 @@ export const usePricingStore = defineStore('pricing', () => {
     goldPricePerGram,
     settings,
     updatedAt,
+    settingsLoaded,
     hasGoldPrice,
     priceOf,
     setGoldPrice,

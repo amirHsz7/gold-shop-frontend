@@ -220,7 +220,7 @@ import BaseBtn from '~/components/base/button/BaseBtn.vue'
 import BaseInput from '~/components/base/inputs/base-input/BaseInput.vue'
 import BaseCheckbox from '~/components/base/inputs/BaseCheckbox.vue'
 import { authRepository } from '~/repositories/auth'
-
+usePageSeo({ title: 'ثبت‌نام', noindex: true }) 
 definePageMeta({
   layout: 'auth',
 })

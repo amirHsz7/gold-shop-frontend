@@ -1,6 +1,8 @@
 <script setup lang="ts">
-useHead({ htmlAttrs: { dir: 'rtl', lang: 'fa' } })
- 
+useHead({
+  htmlAttrs: { dir: 'rtl', lang: 'fa' },
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }],
+})
 const route = useRoute()
 const { close } = useAdminSidebar()
  

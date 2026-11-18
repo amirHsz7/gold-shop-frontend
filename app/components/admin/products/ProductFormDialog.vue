@@ -182,6 +182,34 @@
                 :error="!!fieldErrors.description"
                 :error-message="fieldErrors.description"
               />
+              
+              <BaseInput
+                v-model="metaTitle"
+                class="md:col-span-2"
+                dense
+                label="عنوان سئو (اختیاری)"
+                hint="اگر خالی باشد، نام محصول در عنوان گوگل می‌آید"
+                maxlength="70"
+                counter
+                :disabled="locked"
+                :error="!!fieldErrors.metaTitle"
+                :error-message="fieldErrors.metaTitle"
+              />
+
+              <BaseInput
+                v-model="metaDescription"
+                class="md:col-span-2"
+                dense
+                type="textarea"
+                label="توضیح سئو (اختیاری)"
+                hint="اگر خالی باشد، از توضیحات محصول استفاده می‌شود"
+                :rows="2"
+                maxlength="200"
+                counter
+                :disabled="locked"
+                :error="!!fieldErrors.metaDescription"
+                :error-message="fieldErrors.metaDescription"
+              />
             </section>
 
             <!-- وزن‌ها و موجودی -->
@@ -432,6 +460,8 @@ type ProductFieldKey =
   | 'name'
   | 'slug'
   | 'description'
+  | 'metaTitle'
+  | 'metaDescription'
   | 'categoryId'
   | 'collectionId'
   | 'discountPercent'
@@ -440,6 +470,8 @@ const PRODUCT_FIELD_KEYS: readonly string[] = [
   'name',
   'slug',
   'description',
+  'metaTitle',
+  'metaDescription',
   'categoryId',
   'collectionId',
   'discountPercent',
@@ -478,6 +510,8 @@ type ProductDetail = {
   name: string
   slug: string
   description: string | null
+  metaTitle: string | null
+  metaDescription: string | null
   categoryId: string
   collectionId: string | null
   discountPercent: number
@@ -574,6 +608,8 @@ const name = ref('')
 const slug = ref('')
 const slugTouched = ref(false)
 const description = ref('')
+const metaTitle = ref('')
+const metaDescription = ref('')
 const categoryId = ref<string | null>(null)
 const collectionId = ref<string | null>(null)
 const discountPercent = ref<string | number>(0)
@@ -954,6 +990,8 @@ const resetForm = () => {
   slugChanged.value = false
   originalSlug = ''
   description.value = ''
+  metaTitle.value = ''
+  metaDescription.value = ''
   categoryId.value = null
   collectionId.value = null
   discountPercent.value = 0
@@ -984,6 +1022,8 @@ const fillForm = (product: ProductDetail) => {
   // در ویرایش، اسلاگ با تغییر نام عوض نمی‌شود
   slugTouched.value = true
   description.value = product.description ?? ''
+  metaTitle.value = product.metaTitle ?? ''
+  metaDescription.value = product.metaDescription ?? ''
   categoryId.value = product.categoryId
   collectionId.value = product.collectionId
   discountPercent.value = product.discountPercent
@@ -1053,6 +1093,8 @@ const saveDetails = async () => {
     name: name.value.trim(),
     slug: slug.value.trim(),
     description: description.value.trim() || null,
+    metaTitle: metaTitle.value.trim() || null,
+    metaDescription: metaDescription.value.trim() || null,
     categoryId: categoryId.value,
     collectionId: collectionId.value ?? null,
     discountPercent: Number(discountPercent.value) || 0,

@@ -55,14 +55,24 @@
             </h1>
 
             <div class="flex items-center gap-3 text-xs text-dark-brown/70 lg:text-sm">
-              <template v-if="product.rating.count > 0">
-                <span class="flex items-center gap-1 font-medium text-dark-brown">
-                  <ProductStar filled :size="16" />
-                  {{ toFa(product.rating.average) }}
+              <span
+                v-if="product.rating.count > 0"
+                class="flex items-center gap-1 font-medium text-dark-brown"
+              >
+                <ProductStar filled :size="16" />
+                {{ toFa(product.rating.average) }}
+                <span class="font-normal text-dark-brown/60">
+                  ({{ toFa(product.rating.count) }} امتیاز)
                 </span>
-                <span class="text-burgundy">{{ toFa(product.rating.count) }} نظر</span>
-              </template>
-              <span v-else>هنوز نظری ثبت نشده</span>
+              </span>
+
+              <button
+                type="button"
+                class="text-burgundy hover:underline"
+                @click="scrollToSection('reviews')"
+              >
+                {{ commentCount > 0 ? `${toFa(commentCount)} نظر` : 'هنوز نظری ثبت نشده' }}
+              </button>
             </div>
           </div>
 
@@ -217,6 +227,7 @@ import { calcVariantBreakdown } from '~/utils/pricing'
 
 import type { CommentsResponse } from '~/types/comment'
 
+
 const { notify } = useToast()
 
 const TRUST_ITEMS = [
@@ -320,8 +331,6 @@ const addToCart = () => notifyInfo('سبد خرید به‌زودی فعال م�
 
 // ───── بخش‌های صفحه (تب‌های چسبان) ─────
 const sections = computed(() => {
-  const count = product.value?.rating.count ?? 0
-
   return [
     { id: 'description', label: 'توضیحات' },
     { id: 'specs', label: 'مشخصات' },
@@ -399,4 +408,11 @@ const specs = computed(() => {
     },
   ]
 })
+
+usePageSeo({
+  title: () => product.value?.metaTitle || product.value?.name,
+  description: () => product.value?.metaDescription || product.value?.description,
+  image: () => assetUrl(product.value?.images[0]?.url),
+})
+
 </script>

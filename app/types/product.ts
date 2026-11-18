@@ -22,6 +22,8 @@ export type PublicProduct = {
   name: string
   slug: string
   description: string | null
+  metaTitle: string | null
+  metaDescription: string | null
   // فیلدهای اعشاری در API عمومی رشته هستند
   minWeight: string
   maxWeight: string

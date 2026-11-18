@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1 class="sr-only">{{ SITE_NAME }}: خرید آنلاین طلا و جواهر</h1>
     <!-- هنگام بارگذاری اولیه (مثلاً ناوبری سمت کلاینت) -->
     <template v-if="isLoading">
       <SiteHeroSlider :items="[]" loading />
@@ -74,6 +75,12 @@
 </template>
 
 <script setup lang="ts">
+
+usePageSeo({
+  title: `${SITE_NAME} | ${SITE_TAGLINE}`,
+  description: 'خرید آنلاین طلا و جواهر با ضمانت اصالت کالا و فاکتور رسمی',
+})
+
 import type {
   PublicHomeProductsSection,
   PublicHomeSection,

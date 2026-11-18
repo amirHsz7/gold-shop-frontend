@@ -1,6 +1,5 @@
 <template>
-  <section id="reviews" class="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-12" aria-labelledby="reviews-title">
-
+  <div class="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-12">
     <!-- خلاصه‌ی امتیاز و فرم -->
     <div class="flex flex-col gap-4 self-start rounded-3xl border border-nude/25 bg-white p-5 lg:sticky lg:top-24">
       <div class="flex items-center gap-4">
@@ -132,7 +131,7 @@
       <BaseBtn
         v-if="hasMore"
         outline
-        round
+        rounded
         no-caps
         color="burgundy"
         label="نمایش نظرهای بیشتر"
@@ -141,7 +140,7 @@
         @click="loadMore"
       />
     </div>
-  </section>
+</div>
 </template>
 
 <script setup lang="ts">
