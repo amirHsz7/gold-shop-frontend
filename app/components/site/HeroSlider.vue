@@ -37,7 +37,7 @@
               />
               <img
                 :src="assetUrl(item.imageUrl)"
-                :alt="item.alt ?? ''"
+                :alt="item.alt || item.title || ''"
                 :loading="index === 0 ? 'eager' : 'lazy'"
                 :fetchpriority="index === 0 ? 'high' : 'auto'"
                 decoding="async"

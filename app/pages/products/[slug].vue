@@ -266,12 +266,6 @@ const commentCount = computed(() => commentsData.value?.data.pagination.total ??
 
 const assetUrl = useAssetUrl()
 
-useSeoMeta({
-  title: () => product.value?.name ?? 'محصول',
-  description: () => product.value?.description?.slice(0, 160) ?? '',
-  ogImage: () => assetUrl(product.value?.images[0]?.url),
-})
-
 const toFa = (value: number) => new Intl.NumberFormat('fa-IR').format(value)
 
 const discount = computed(() => Number(product.value?.discountPercent ?? 0))
