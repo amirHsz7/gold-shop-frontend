@@ -1,4 +1,4 @@
-// درصد سود و مالیات را از بکند می‌گیرد؛ اگر نشد، همان پیش‌فرض‌های فرانت می‌ماند
+// درصد سود، مالیات و قیمت طلا را از بکند می‌گیرد؛ اگر نشد، پیش‌فرض‌های فرانت می‌ماند
 export default defineNuxtPlugin(async (nuxtApp) => {
   const pricing = usePricingStore()
 
@@ -7,13 +7,22 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   try {
     const res = await nuxtApp.$api<{
-      data: { sellerProfitPercent: number, vatPercent: number }
+      data: {
+        sellerProfitPercent: number
+        vatPercent: number
+        goldPricePerGram: number | null
+      }
     }>('/pricing-settings')
 
     pricing.setSettings({
       sellerProfitPercent: res.data.sellerProfitPercent,
       vatPercent: res.data.vatPercent,
     })
+
+    if (res.data.goldPricePerGram) {
+      pricing.setGoldPrice(res.data.goldPricePerGram)
+    }
+
     pricing.settingsLoaded = true
   }
   catch {
