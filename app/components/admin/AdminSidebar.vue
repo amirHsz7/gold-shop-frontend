@@ -15,8 +15,8 @@ const { isOpen, close } = useAdminSidebar()
   -->
   <BaseDialog
     v-model="isOpen"
-    position="left"
     full-height
+    position="right"
     transition-show="slide-right"
     transition-hide="slide-left"
     overflow="hidden"

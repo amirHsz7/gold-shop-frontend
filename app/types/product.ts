@@ -15,6 +15,8 @@ export type PublicVariant = {
   fee: string
   feeAmount: string
   stock: number
+  price?: number | null
+  originalPrice?: number | null
 }
 
 export type PublicProduct = {
@@ -28,6 +30,8 @@ export type PublicProduct = {
   minWeight: string
   maxWeight: string
   discountPercent: string
+  minPrice?: number | null
+  maxPrice?: number | null
   isFeatured: boolean
   createdAt: string
   totalStock: number

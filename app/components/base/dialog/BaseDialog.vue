@@ -113,9 +113,8 @@ const positionClasses = computed(() => {
     case 'bottom':
       return 'items-end justify-center'
     case 'left':
-      return 'items-center justify-start'
     case 'right':
-      return 'items-center justify-end'
+      return 'items-center'
     default:
       return 'items-center justify-center'
   }
@@ -135,14 +134,17 @@ const dialogStyles = computed(() => {
   if (props.maximized) {
     return { width: '100vw', height: '100dvh' }
   }
-  
+
+  const edge = props.fullWidth || props.fullHeight ? '0' : '1rem'
+
   return {
     width: props.fullWidth ? '98vw' : '100%',
     maxWidth: props.fullWidth ? 'none' : '672px',
-    marginLeft: props.fullWidth || props.fullHeight ? '0' : '1rem',   
-    marginRight: props.fullWidth || props.fullHeight ? '0' : '1rem',
+    // margin خودکار، دیالوگ را فیزیکی به همان سمت می‌چسباند (مستقل از dir صفحه)
+    marginLeft: props.position === 'right' ? 'auto' : edge,
+    marginRight: props.position === 'left' ? 'auto' : edge,
     height: props.fullHeight ? '100dvh' : 'auto',
-    maxHeight: props.fullHeight ? 'none' : '90dvh' 
+    maxHeight: props.fullHeight ? 'none' : '90dvh',
   }
 })
 

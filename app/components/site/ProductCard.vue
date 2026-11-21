@@ -170,9 +170,11 @@ onMounted(() => {
 
 // اگر API قیمت داده باشد همان، وگرنه از روی قیمت طلای store حساب می‌شود
 const price = computed<ProductPrice | null>(
-  () => props.product.price ?? pricing.priceOf(props.product),
+  () =>
+    getApiPrice(props.product)
+    ?? props.product.price
+    ?? pricing.priceOf(props.product),
 )
-
 const discount = computed(() => Number(props.product.discountPercent) || 0)
 
 const isNew = computed(() => {

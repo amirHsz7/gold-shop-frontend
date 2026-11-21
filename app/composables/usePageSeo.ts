@@ -6,8 +6,10 @@ type PageSeoOptions = {
   // آدرس عکس؛ نسبی یا کامل
   image?: MaybeText
   type?: 'website' | 'article'
-  // صفحه‌هایی که نباید در گوگل بیایند (ورود، پنل، ...)
-  noindex?: boolean
+  // صفحه‌هایی که نباید در گوگل بیایند (ورود، پنل، فیلترهای ترکیبی، ...)
+  noindex?: MaybeRefOrGetter<boolean>
+  // پارامترهایی که جزو آدرس یکتای صفحه‌اند (مثلاً { category: 'ring' })
+  canonicalQuery?: MaybeRefOrGetter<Record<string, string> | undefined>
 }
 
 const MAX_DESCRIPTION = 160
@@ -46,19 +48,26 @@ export const usePageSeo = (options: PageSeoOptions) => {
     return value ? toAbsolute(value) : undefined
   })
 
-  // آدرس یکتا بدون کوئری؛ تا وقتی دامنه تنظیم نشده canonical گذاشته نمی‌شود
+  const isNoindex = computed(() => !!toValue(options.noindex))
+
+  // آدرس یکتا؛ تا وقتی دامنه تنظیم نشده canonical گذاشته نمی‌شود
   const canonical = computed(() => {
     if (!siteUrl) return undefined
 
     const path = route.path.length > 1 ? route.path.replace(/\/+$/, '') : ''
+    const query = toValue(options.canonicalQuery)
+    const search = query && Object.keys(query).length > 0
+      ? `?${new URLSearchParams(query).toString()}`
+      : ''
 
-    return `${siteUrl}${path || '/'}`
+    return `${siteUrl}${path || '/'}${search}`
   })
 
   useSeoMeta({
     title,
     description,
-    robots: options.noindex ? 'noindex, nofollow' : 'index, follow',
+    // صفحه‌های noindex لینک‌هایشان دنبال می‌شود تا محصولات پیدا شوند
+    robots: () => (isNoindex.value ? 'noindex, follow' : 'index, follow'),
     ogTitle: title,
     ogDescription: description,
     ogImage: image,
@@ -71,7 +80,7 @@ export const usePageSeo = (options: PageSeoOptions) => {
 
   useHead({
     link: computed(() =>
-      canonical.value && !options.noindex
+      canonical.value && !isNoindex.value
         ? [{ rel: 'canonical', href: canonical.value }]
         : [],
     ),

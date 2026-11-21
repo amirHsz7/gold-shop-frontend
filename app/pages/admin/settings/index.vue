@@ -7,8 +7,9 @@
     <section class="max-w-xl rounded-xl border border-gray-200 bg-white p-5">
       <h2 class="text-base font-semibold text-gray-800">قیمت‌گذاری محصولات</h2>
       <p class="mt-1 mb-4 text-sm leading-6 text-gray-500">
-        این دو درصد در محاسبه‌ی قیمت همه‌ی محصولات استفاده می‌شود.
+        قیمت طلا و این دو درصد در محاسبه‌ی قیمت همه‌ی محصولات استفاده می‌شود.
         سود روی «طلای خام + اجرت» و مالیات روی «اجرت + سود» حساب می‌شود.
+        با هر ذخیره، قیمت همه‌ی محصولات دوباره محاسبه می‌شود.
       </p>
 
       <p v-if="isLoading" class="py-6 text-center text-zinc-500">
@@ -16,6 +17,23 @@
       </p>
 
       <form v-else class="flex flex-col gap-4" novalidate @submit.prevent="save">
+        <div>
+          <BaseInput
+            v-model="gold"
+            type="number"
+            label="قیمت هر گرم طلای ۱۸ عیار (تومان)"
+            :hint="goldHint"
+            :disabled="isSaving"
+            :error="!!goldError"
+            :error-message="goldError"
+          />
+
+          <p v-if="goldPriceUpdatedAt" class="mt-1 text-xs text-gray-400">
+            آخرین به‌روزرسانی قیمت طلا:
+            {{ dateFormatter.format(new Date(goldPriceUpdatedAt)) }}
+          </p>
+        </div>
+
         <BaseInput
           v-model="profit"
           type="number"
@@ -63,6 +81,8 @@ type PricingSettingsResponse = {
   data: {
     sellerProfitPercent: number
     vatPercent: number
+    goldPricePerGram: number | null
+    goldPriceUpdatedAt: string | null
     updatedAt: string | null
   }
 }
@@ -84,13 +104,25 @@ const { data, status } = useApiFetch<PricingSettingsResponse>(
 
 const isLoading = computed(() => !data.value && status.value === 'pending')
 
+const gold = ref<string | number | null>('')
 const profit = ref<string | number | null>('')
 const vat = ref<string | number | null>('')
 const updatedAt = ref<string | null>(null)
+const goldPriceUpdatedAt = ref<string | null>(null)
 
+const goldError = ref<string | undefined>()
 const profitError = ref<string | undefined>()
 const vatError = ref<string | undefined>()
 const isSaving = ref(false)
+
+// نمایش خوانای قیمت زیر فیلد، مثلاً «۳٬۵۰۰٬۰۰۰ تومان»
+const goldHint = computed(() => {
+  const number = Number(gold.value)
+
+  return gold.value !== '' && Number.isFinite(number) && number > 0
+    ? `${number.toLocaleString('fa-IR')} تومان`
+    : 'مثلاً ۳۵۰۰۰۰۰'
+})
 
 // مقدار فرم را از بکند پر می‌کند
 watch(
@@ -98,9 +130,11 @@ watch(
   (value) => {
     if (!value) return
 
+    gold.value = value.data.goldPricePerGram ?? ''
     profit.value = value.data.sellerProfitPercent
     vat.value = value.data.vatPercent
     updatedAt.value = value.data.updatedAt
+    goldPriceUpdatedAt.value = value.data.goldPriceUpdatedAt
   },
   { immediate: true },
 )
@@ -118,13 +152,28 @@ const validate = (value: string | number | null, label: string) => {
   return undefined
 }
 
+// قیمت طلا باید عدد صحیح مثبت (تومان) باشد
+const validateGold = (value: string | number | null) => {
+  if (value === '' || value === null) return 'قیمت طلا را وارد کنید'
+
+  const number = Number(value)
+
+  if (!Number.isFinite(number)) return 'قیمت طلا باید عدد باشد'
+  if (!Number.isInteger(number)) return 'قیمت طلا باید عدد صحیح باشد'
+  if (number < 1) return 'قیمت طلا باید بیشتر از صفر باشد'
+  if (number > 1_000_000_000) return 'قیمت طلا بیش از حد بزرگ است'
+
+  return undefined
+}
+
 const save = async () => {
   if (isSaving.value) return
 
+  goldError.value = validateGold(gold.value)
   profitError.value = validate(profit.value, 'درصد سود')
   vatError.value = validate(vat.value, 'درصد مالیات')
 
-  if (profitError.value || vatError.value) return
+  if (goldError.value || profitError.value || vatError.value) return
 
   isSaving.value = true
 
@@ -134,6 +183,7 @@ const save = async () => {
       {
         method: 'PUT',
         body: {
+          goldPricePerGram: Number(gold.value),
           sellerProfitPercent: Number(profit.value),
           vatPercent: Number(vat.value),
         },
@@ -141,12 +191,17 @@ const save = async () => {
     )
 
     updatedAt.value = res.data.updatedAt
+    goldPriceUpdatedAt.value = res.data.goldPriceUpdatedAt
 
     // قیمت‌های نمایشی همین مرورگر هم بلافاصله به‌روز شوند
     pricing.setSettings({
       sellerProfitPercent: res.data.sellerProfitPercent,
       vatPercent: res.data.vatPercent,
     })
+
+    if (res.data.goldPricePerGram) {
+      pricing.setGoldPrice(res.data.goldPricePerGram)
+    }
 
     toast.success(res.message)
   }
