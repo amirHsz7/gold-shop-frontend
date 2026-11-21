@@ -34,8 +34,15 @@ export const useUserStore = defineStore('user', () => {
   async function fetchUser() {
     if (!accessToken.value) return
     const { $api } = useNuxtApp()
-    const res = await $api<{ data: { userId: string, role: UserRole } }>('/users/me')
-    user.value = { id: res.data.userId, role: res.data.role }
+    const res = await $api<{
+      data: { userId: string, role: UserRole, fullName: string, mobile: string }
+    }>('/users/me')
+    user.value = {
+      id: res.data.userId,
+      role: res.data.role,
+      fullName: res.data.fullName,
+      mobile: res.data.mobile,
+    }
   }
 
   function logout() {

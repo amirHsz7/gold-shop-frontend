@@ -380,15 +380,7 @@ async function remove(item: CartLine) {
   }
 }
 
-const goCheckout = () => {
-  notify({
-    message: 'صفحه‌ی تسویه‌حساب به‌زودی فعال می‌شود',
-    color: 'burgundy',
-    textColor: 'white',
-    position: 'top',
-    timeout: 3000,
-  })
-}
+const goCheckout = () => navigateTo('/checkout')
 
 // به‌روزرسانی قیمت‌ها هر ۱ دقیقه، فقط وقتی تب دیده می‌شود
 let timer: ReturnType<typeof setInterval> | null = null
