@@ -1,8 +1,10 @@
+export type UserRole = 'ADMIN' | 'SUPER_ADMIN' | 'CUSTOMER'
+
 export interface User {
   id: string
   fullName: string
   mobile: string
-  role: 'ADMIN' | 'CUSTOMER'
+  role: UserRole
 }
 
 const TOKEN_MAX_AGE = 60 * 15 
@@ -19,7 +21,10 @@ export const useUserStore = defineStore('user', () => {
   const user = ref<any>(null)
 
   const isLoggedIn = computed(() => !!accessToken.value)
-  const isAdmin = computed(() => user.value?.role === 'ADMIN')
+  const isAdmin = computed(
+    () => user.value?.role === 'ADMIN' || user.value?.role === 'SUPER_ADMIN',
+  )
+  const isSuperAdmin = computed(() => user.value?.role === 'SUPER_ADMIN')
 
   function setSession(payload: { accessToken: string, user: User }) {
     accessToken.value = payload.accessToken
@@ -29,7 +34,7 @@ export const useUserStore = defineStore('user', () => {
   async function fetchUser() {
     if (!accessToken.value) return
     const { $api } = useNuxtApp()
-    const res = await $api<{ data: { userId: string, role: 'ADMIN' | 'CUSTOMER' } }>('/users/me')
+    const res = await $api<{ data: { userId: string, role: UserRole } }>('/users/me')
     user.value = { id: res.data.userId, role: res.data.role }
   }
 
@@ -38,5 +43,5 @@ export const useUserStore = defineStore('user', () => {
     user.value = null
   }
 
-  return { accessToken, user, isLoggedIn, isAdmin, setSession, fetchUser, logout }
+  return { accessToken, user, isLoggedIn, isAdmin, isSuperAdmin, setSession, fetchUser, logout }
 })

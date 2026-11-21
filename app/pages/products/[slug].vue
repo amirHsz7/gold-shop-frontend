@@ -222,11 +222,11 @@
 
 <script setup lang="ts">
 import BaseBtn from '~/components/base/button/BaseBtn.vue'
-import type { PublicProduct } from '~/types/product'
 import { calcVariantBreakdown } from '~/utils/pricing'
 
 import type { CommentsResponse } from '~/types/comment'
-
+import type { PublicProduct, PublicVariant } from '~/types/product'
+import { useCartStore } from '~/stores/cart'
 
 const { notify } = useToast()
 
@@ -287,12 +287,24 @@ const selectedVariant = computed(
   () => product.value?.variants.find(variant => variant.id === selectedId.value) ?? null,
 )
 
-const breakdownOf = (variant: PublicProduct['variants'][number]) => {
+const breakdownOf = (variant: PublicVariant) => {
   const gold = pricing.goldPricePerGram
 
   if (!gold || gold <= 0) return null
 
-  return calcVariantBreakdown(variant, gold, discount.value, pricing.settings)
+  const parts = calcVariantBreakdown(variant, gold, discount.value, pricing.settings)
+
+  // قیمت نهایی را بک‌اند تعیین می‌کند
+  if (variant.price == null) return parts
+
+  const original = variant.originalPrice ?? variant.price
+
+  return {
+    ...parts,
+    final: variant.price,
+    original,
+    discount: Math.max(original - variant.price, 0),
+  }
 }
 
 const weightItems = computed(() =>
@@ -320,9 +332,48 @@ watch(selectedId, () => {
 const notifyInfo = (message: string) =>
   notify({ message, color: 'burgundy', textColor: 'white', position: 'top', timeout: 3000 })
 
-// ماژول سبد خرید هنوز ساخته نشده است
-const addToCart = () => notifyInfo('سبد خرید به‌زودی فعال می‌شود')
+// ───── سبد خرید ─────
+const cartStore = useCartStore()
+const userStore = useUserStore()
+const { getMessage } = useApiError()
 
+const adding = ref(false)
+
+const addToCart = async () => {
+  if (!selectedVariant.value || adding.value) return
+
+  if (!userStore.isLoggedIn) {
+    useState<string | null>('redirect-after-login').value = route.fullPath
+    notifyInfo('برای افزودن به سبد خرید ابتدا وارد شوید')
+    await navigateTo('/login')
+    return
+  }
+
+  adding.value = true
+
+  try {
+    await cartStore.addItem(selectedVariant.value.id, quantity.value)
+    notify({
+      message: 'به سبد خرید اضافه شد',
+      color: 'green',
+      textColor: 'white',
+      position: 'top',
+      timeout: 3000,
+    })
+  }
+  catch (error) {
+    notify({
+      message: getMessage(error, 'افزودن به سبد خرید انجام نشد'),
+      color: 'burgundy',
+      textColor: 'white',
+      position: 'top',
+      timeout: 4000,
+    })
+  }
+  finally {
+    adding.value = false
+  }
+}
 // ───── بخش‌های صفحه (تب‌های چسبان) ─────
 const sections = computed(() => {
   return [

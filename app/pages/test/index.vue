@@ -11,10 +11,16 @@
 <script setup lang="ts">
 import type { PublicProduct } from '~/types/product'
 
+
 const { data } = useApiFetch<{
   status: string
   data: { items: PublicProduct[] }
 }>('/products?limit=8', { key: 'card-test' })
 
 const products = computed(() => data.value?.data.items ?? [])
+import iranCities from 'iran-cities-json'
+
+const { ostan, shahr } = iranCities as { ostan: any[], shahr: any[] }
+console.log(ostan);
+
 </script>

@@ -76,7 +76,7 @@
         <span class="flex items-center gap-1.5 font-medium text-gray-800">
           {{ props.row.user.fullName }}
           <span
-            v-if="props.row.user.role === 'ADMIN'"
+            v-if="['ADMIN', 'SUPER_ADMIN'].includes(props.row.user.role)"
             class="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-normal text-blue-700"
           >
             ادمین
@@ -343,7 +343,7 @@ type CommentRow = {
     id: string
     fullName: string
     mobile: string
-    role: 'CUSTOMER' | 'ADMIN'
+    role: 'CUSTOMER' | 'ADMIN' | 'SUPER_ADMIN'
   }
   product: { id: string; name: string; slug: string }
   parent: { id: string; excerpt: string } | null

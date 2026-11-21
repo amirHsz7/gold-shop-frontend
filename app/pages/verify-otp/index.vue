@@ -203,7 +203,12 @@ async function submitForm() {
     userStore.setSession(res.data)
     otpState.value = null
     notify({ message: 'خوش آمدید.', color: 'green', textColor: '#ffffff', position: 'bottom', timeout: 3000 })
-    await navigateTo('/')
+    const redirect = useState<string | null>('redirect-after-login')
+    const target = redirect.value && redirect.value.startsWith('/') && !redirect.value.startsWith('//')
+      ? redirect.value
+      : '/'
+    redirect.value = null
+    await navigateTo(target)
   }
   catch (error: any) {
     errorMessage.value
