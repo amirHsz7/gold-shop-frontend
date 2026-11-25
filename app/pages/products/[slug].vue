@@ -323,7 +323,12 @@ const selectedBreakdown = computed(() =>
 // ───── خرید ─────
 const quantity = ref(1)
 const maxQuantity = computed(() => Math.max(selectedVariant.value?.stock ?? 1, 1))
-const canBuy = computed(() => !!selectedVariant.value && selectedVariant.value.stock > 0)
+const canBuy = computed(
+  () =>
+    !!selectedVariant.value &&
+    selectedVariant.value.stock > 0 &&
+    pricing.canCheckout,
+)
 
 watch(selectedId, () => {
   quantity.value = 1
