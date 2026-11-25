@@ -1,3 +1,4 @@
+
 import { defineStore } from 'pinia'
 import {
   DEFAULT_PRICING_SETTINGS,
@@ -6,16 +7,17 @@ import {
   type PricingSettings,
 } from '@/utils/pricing'
 
-// قیمت هر گرم طلای ۱۸ عیار (تومان) و تنظیمات محاسبه‌ی قیمت
-// فعلاً قیمت طلا دستی (از تنظیمات) می‌آید و بعد از خرید TGN از بکند گرفته می‌شود
-export const usePricingStore = defineStore('pricing', () => {
-  const config = useRuntimeConfig()
-  const manual = Number(config.public.manualGoldPrice)
+export type GoldPriceStatus = 'AVAILABLE' | 'UNAVAILABLE'
 
-  // بعد از دریافت تنظیمات از بکند true می‌شود (از SSR به مرورگر هم منتقل می‌شود)
+export const usePricingStore = defineStore('pricing', () => {
   const settingsLoaded = ref(false)
 
-  const goldPricePerGram = ref<number | null>(manual > 0 ? manual : null)
+  // قیمت فقط از Backend دریافت می‌شود؛ نه از manualGoldPrice فرانت
+  const goldPricePerGram = ref<number | null>(null)
+
+  // تا زمانی که Backend سلامت قیمت را تأیید نکرده، وضعیت unavailable است
+  const goldPriceStatus = ref<GoldPriceStatus>('UNAVAILABLE')
+
   const settings = ref<PricingSettings>({ ...DEFAULT_PRICING_SETTINGS })
   const updatedAt = ref<string | null>(null)
 
@@ -23,13 +25,23 @@ export const usePricingStore = defineStore('pricing', () => {
     () => goldPricePerGram.value !== null && goldPricePerGram.value > 0,
   )
 
-  // قیمت نمایشی یک محصول؛ داخل computed کامپوننت‌ها با تغییر قیمت طلا یا تنظیمات خودکار به‌روز می‌شود
+  // وجود قیمت به‌تنهایی به معنی امکان خرید نیست
+  const canCheckout = computed(
+    () => goldPriceStatus.value === 'AVAILABLE' && hasGoldPrice.value,
+  )
+
   const priceOf = (product: PriceableProduct) =>
     getProductPrice(product, goldPricePerGram.value, settings.value)
 
   const setGoldPrice = (value: number) => {
-    goldPricePerGram.value = value > 0 ? value : null
+    if (!Number.isFinite(value) || value <= 0) return
+
+    goldPricePerGram.value = value
     updatedAt.value = new Date().toISOString()
+  }
+
+  const setGoldPriceStatus = (value: GoldPriceStatus) => {
+    goldPriceStatus.value = value
   }
 
   const setSettings = (value: Partial<PricingSettings>) => {
@@ -38,12 +50,15 @@ export const usePricingStore = defineStore('pricing', () => {
 
   return {
     goldPricePerGram,
+    goldPriceStatus,
     settings,
     updatedAt,
     settingsLoaded,
     hasGoldPrice,
+    canCheckout,
     priceOf,
     setGoldPrice,
+    setGoldPriceStatus,
     setSettings,
   }
 })

@@ -1,8 +1,9 @@
-// درصد سود، مالیات و قیمت طلا را از بکند می‌گیرد؛ اگر نشد، پیش‌فرض‌های فرانت می‌ماند
+
+import type { GoldPriceStatus } from '~/stores/pricing'
+
 export default defineNuxtPlugin(async (nuxtApp) => {
   const pricing = usePricingStore()
 
-  // بعد از SSR مقدار از payload آمده و دوباره گرفتن لازم نیست
   if (pricing.settingsLoaded) return
 
   try {
@@ -11,21 +12,45 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         sellerProfitPercent: number
         vatPercent: number
         goldPricePerGram: number | null
+        goldPriceStatus: GoldPriceStatus
       }
     }>('/pricing-settings')
 
+    const data = res.data
+
+    if (
+      data.goldPriceStatus !== 'AVAILABLE' &&
+      data.goldPriceStatus !== 'UNAVAILABLE'
+    ) {
+      throw new Error('Invalid gold price status')
+    }
+
     pricing.setSettings({
-      sellerProfitPercent: res.data.sellerProfitPercent,
-      vatPercent: res.data.vatPercent,
+      sellerProfitPercent: data.sellerProfitPercent,
+      vatPercent: data.vatPercent,
     })
 
-    if (res.data.goldPricePerGram) {
-      pricing.setGoldPrice(res.data.goldPricePerGram)
+    const hasValidGoldPrice =
+      typeof data.goldPricePerGram === 'number' &&
+      Number.isFinite(data.goldPricePerGram) &&
+      data.goldPricePerGram > 0
+
+    // قیمت قبلی را در صورت دریافت null یا مقدار نامعتبر پاک نمی‌کنیم
+    if (hasValidGoldPrice) {
+      pricing.setGoldPrice(data.goldPricePerGram!)
     }
+
+    // AVAILABLE فقط با وجود قیمت معتبر پذیرفته می‌شود
+    pricing.setGoldPriceStatus(
+      data.goldPriceStatus === 'AVAILABLE' && hasValidGoldPrice
+        ? 'AVAILABLE'
+        : 'UNAVAILABLE',
+    )
 
     pricing.settingsLoaded = true
   }
   catch {
-    // خطا در دریافت تنظیمات نباید کل سایت را از کار بیندازد
+    // در صورت خطا، خرید مجاز نیست؛ قیمت قبلی نیز حذف نمی‌شود
+    pricing.setGoldPriceStatus('UNAVAILABLE')
   }
 })

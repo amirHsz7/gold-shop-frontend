@@ -18,25 +18,28 @@
           <h2 class="text-base font-bold text-burgundy">اطلاعات گیرنده</h2>
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <div class="flex flex-col gap-1.5">
-              <label for="rcv-name" class="text-[13px] text-dark-gray">نام و نام خانوادگی گیرنده</label>
-              <input id="rcv-name" v-model="form.recipientName" type="text" :class="inputClass('recipientName')">
-              <p v-if="errors.recipientName" class="text-xs text-burgundy">{{ errors.recipientName }}</p>
-            </div>
+            <BaseInput
+              id="rcv-name"
+              v-model="form.recipientName"
+              label="نام و نام خانوادگی گیرنده"
+              autocomplete="name"
+              :error="!!errors.recipientName"
+              :error-message="errors.recipientName"
+            />
 
-            <div class="flex flex-col gap-1.5">
-              <label for="rcv-mobile" class="text-[13px] text-dark-gray">شماره‌ی موبایل گیرنده</label>
-              <input
-                id="rcv-mobile"
-                v-model="form.recipientMobile"
-                type="text"
-                inputmode="numeric"
-                dir="ltr"
-                maxlength="11"
-                :class="[inputClass('recipientMobile'), 'text-right']"
-              >
-              <p v-if="errors.recipientMobile" class="text-xs text-burgundy">{{ errors.recipientMobile }}</p>
-            </div>
+            <BaseInput
+              id="rcv-mobile"
+              v-model="form.recipientMobile"
+              type="tel"
+              label="شماره‌ی موبایل گیرنده"
+              inputmode="numeric"
+              autocomplete="tel"
+              maxlength="11"
+              dir="ltr"
+              input-class="text-right"
+              :error="!!errors.recipientMobile"
+              :error-message="errors.recipientMobile"
+            />
           </div>
 
           <p class="text-xs leading-7 text-dark-gray">
@@ -114,53 +117,54 @@
           </div>
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <div class="flex flex-col gap-1.5">
-              <label for="ad-province" class="text-[13px] text-dark-gray">استان</label>
-              <select id="ad-province" v-model="form.province" :class="inputClass('province')">
-                <option v-for="province in IRAN_PROVINCES" :key="province" :value="province">
-                  {{ province }}
-                </option>
-              </select>
-            </div>
-
-            <div class="flex flex-col gap-1.5">
-              <label for="ad-city" class="text-[13px] text-dark-gray">شهر</label>
-              <select id="ad-city" v-model="form.city" :class="inputClass('city')">
-                <option value="" disabled>انتخاب شهر</option>
-                <option v-for="city in cityOptions" :key="city" :value="city">
-                  {{ city }}
-                </option>
-              </select>
-              <p v-if="errors.city" class="text-xs text-burgundy">{{ errors.city }}</p>
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-1.5">
-            <label for="ad-full" class="text-[13px] text-dark-gray">آدرس کامل</label>
-            <textarea
-              id="ad-full"
-              v-model="form.address"
-              rows="3"
-              class="resize-y rounded-[10px] border bg-white px-3.5 py-3 text-sm leading-8 outline-none focus:border-burgundy"
-              :class="errors.address ? 'border-burgundy' : 'border-gray'"
+            <BaseSelect
+              v-model="form.province"
+              :options="provinceOptions"
+              label="استان"
+              placeholder="انتخاب استان"
+              emit-value
+              searchable
+              :error="!!errors.province"
+              :error-message="errors.province"
             />
-            <p v-if="errors.address" class="text-xs text-burgundy">{{ errors.address }}</p>
+
+            <BaseSelect
+              v-model="form.city"
+              :options="cityOptionList"
+              label="شهر"
+              placeholder="انتخاب شهر"
+              emit-value
+              searchable
+              :error="!!errors.city"
+              :error-message="errors.city"
+            />
           </div>
+
+          <BaseInput
+            id="ad-full"
+            v-model="form.address"
+            type="textarea"
+            rows="3"
+            label="آدرس کامل"
+            autocomplete="street-address"
+            :error="!!errors.address"
+            :error-message="errors.address"
+          />
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <div class="flex flex-col gap-1.5">
-              <label for="ad-postal" class="text-[13px] text-dark-gray">کد پستی (۱۰ رقم)</label>
-              <input
-                id="ad-postal"
-                v-model="form.postalCode"
-                type="text"
-                inputmode="numeric"
-                dir="ltr"
-                maxlength="10"
-                :class="[inputClass('postalCode'), 'text-right']"
-              >
-              <p v-if="errors.postalCode" class="text-xs text-burgundy">{{ errors.postalCode }}</p>
-            </div>
+            <BaseInput
+              id="ad-postal"
+              v-model="form.postalCode"
+              type="tel"
+              label="کد پستی (۱۰ رقم)"
+              inputmode="numeric"
+              autocomplete="postal-code"
+              maxlength="10"
+              dir="ltr"
+              input-class="text-right"
+              :error="!!errors.postalCode"
+              :error-message="errors.postalCode"
+            />
           </div>
 
           <fieldset class="flex min-w-0 flex-col gap-2.5 border-0 p-0">
@@ -188,24 +192,26 @@
               </label>
             </div>
 
-            <div v-if="form.titleChoice === 'custom'" class="flex max-w-90 flex-col gap-1.5">
-              <label for="ad-title-custom" class="text-xs text-dark-gray">عنوان را بنویسید</label>
-              <input
-                id="ad-title-custom"
-                v-model="form.customTitle"
-                type="text"
-                maxlength="50"
-                placeholder="مثلاً خانه‌ی مادربزرگ"
-                :class="inputClass('title')"
-              >
-              <p v-if="errors.title" class="text-xs text-burgundy">{{ errors.title }}</p>
-            </div>
+            <BaseInput
+              v-if="form.titleChoice === 'custom'"
+              id="ad-title-custom"
+              v-model="form.customTitle"
+              label="عنوان را بنویسید"
+              placeholder="مثلاً خانه‌ی مادربزرگ"
+              maxlength="50"
+              class="max-w-90"
+              :error="!!errors.title"
+              :error-message="errors.title"
+            />
           </fieldset>
 
-          <label class="flex min-h-11 cursor-pointer items-center gap-2.5 text-sm">
-            <input v-model="form.save" type="checkbox" class="size-4.5 accent-gold">
-            ذخیره‌ی این آدرس (و تغییرات آن) در آدرس‌های من
-          </label>
+          <BaseCheckbox
+            v-model="form.save"
+            label="ذخیره‌ی این آدرس (و تغییرات آن) در آدرس‌های من"
+            color="#D6B36A"
+            size="md"
+            class="min-h-11 !flex items-center"
+          />
         </section>
 
         <!-- ارسال -->
@@ -313,6 +319,9 @@
 
 <script setup lang="ts">
 import BaseBtn from '~/components/base/button/BaseBtn.vue'
+import BaseInput from '~/components/base/inputs/base-input/BaseInput.vue'
+import BaseSelect from '~/components/base/select/BaseSelect.vue'
+import BaseCheckbox from '~/components/base/inputs/BaseCheckbox.vue'
 import { toEnNumber, toFaNumber } from '~/utils/formatNumber'
 import { IRAN_PROVINCES, citiesOf } from '~/utils/iran-geo'
 
@@ -363,11 +372,16 @@ const form = reactive({
 
 const errors = reactive<Record<string, string>>({})
 
-const cityOptions = computed(() => citiesOf(form.province))
+const provinceOptions = IRAN_PROVINCES.map(name => ({ label: name, value: name }))
+
+const cityNames = computed(() => citiesOf(form.province))
+const cityOptionList = computed(() =>
+  cityNames.value.map(name => ({ label: name, value: name })),
+)
 
 // با عوض شدن استان، شهرِ نامربوط پاک می‌شود
 watch(() => form.province, () => {
-  if (!cityOptions.value.includes(form.city)) form.city = ''
+  if (!cityNames.value.includes(form.city)) form.city = ''
 })
 
 const summary = computed(() => cartStore.cart?.summary ?? null)
@@ -377,11 +391,6 @@ const payableItems = computed(() =>
 const totalQuantity = computed(() =>
   payableItems.value.reduce((sum, item) => sum + item.effectiveQuantity, 0),
 )
-
-const inputClass = (field: string) => [
-  'h-12 rounded-[10px] border bg-white px-3.5 text-sm outline-none focus:border-burgundy',
-  errors[field] ? 'border-burgundy' : 'border-gray',
-]
 
 // ارقام فارسی را انگلیسی می‌کند و فقط رقم نگه می‌دارد
 watch(() => form.recipientMobile, (value) => {
@@ -434,6 +443,9 @@ function validate() {
   }
   if (!/^09\d{9}$/.test(form.recipientMobile)) {
     errors.recipientMobile = 'شماره‌ی موبایل باید ۱۱ رقم و با ۰۹ شروع شود'
+  }
+  if (!form.province) {
+    errors.province = 'استان را انتخاب کنید'
   }
   if (!form.city) {
     errors.city = 'شهر را انتخاب کنید'
