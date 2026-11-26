@@ -6,12 +6,38 @@
       در حال بارگذاری...
     </div>
 
-    <div v-else class="flex flex-col gap-8 lg:flex-row lg:items-start">
+    <section
+      v-else-if="attempt"
+      class="mx-auto grid max-w-lg gap-4 rounded-2xl bg-white p-6"
+    >
+      <h2 class="font-bold">ادامه پرداخت</h2>
+
+      <p>
+        {{ attempt.stage === 'payment'
+          ? 'سفارش ثبت شده است.'
+          : 'درخواست ثبت سفارش آماده پیگیری است.' }}
+      </p>
+
+      <BaseBtn :loading="paying" @click="submit()">
+        ادامه همین خرید
+      </BaseBtn>
+
+      <button
+        v-if="attempt.stage === 'payment'"
+        type="button"
+        :disabled="paying"
+        @click="backToCart"
+      >
+        خروج از پرداخت و بازگشت به سبد
+      </button>
+    </section>
+
+    <div :inert="paying" v-else class="flex flex-col gap-8 lg:flex-row lg:items-start">
       <form
         aria-label="اطلاعات سفارش"
         class="flex min-w-0 flex-1 flex-col gap-5"
         novalidate
-        @submit.prevent="submit"
+        @submit.prevent="submit()"
       >
         <!-- گیرنده -->
         <section class="flex flex-col gap-4 rounded-2xl border border-nude/20 bg-white/50 p-5 lg:p-6">
@@ -305,7 +331,7 @@
           label="پرداخت و ثبت سفارش"
           class="h-13 rounded-xl text-[15px] font-semibold"
           :loading="paying"
-          @click="submit"
+          @click="submit()"
         />
 
         <p class="flex items-start gap-2 text-xs leading-6 text-dark-gray">
@@ -314,6 +340,33 @@
         </p>
       </aside>
     </div>
+    <BaseDialog :model-value="newTotal !== null" persistent>
+      <section
+        v-if="newTotal !== null && attempt?.stage === 'order'"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="price-title"
+        class="grid gap-4 p-6"
+      >
+        <h2 id="price-title" class="font-bold">مبلغ سفارش تغییر کرد</h2>
+
+        <p>
+          مبلغ قبلی: {{ formatToman(attempt.body.expectedTotalAmount) }} تومان
+        </p>
+
+        <p>
+          مبلغ جدید با احتساب ارسال: {{ formatToman(newTotal) }} تومان
+        </p>
+
+        <BaseBtn :loading="paying" @click="submit(true)">
+          تأیید مبلغ جدید و ادامه پرداخت
+        </BaseBtn>
+
+        <button type="button" :disabled="paying" @click="backToCart">
+          بازگشت به سبد
+        </button>
+      </section>
+    </BaseDialog>
   </div>
 </template>
 
@@ -324,6 +377,7 @@ import BaseSelect from '~/components/base/select/BaseSelect.vue'
 import BaseCheckbox from '~/components/base/inputs/BaseCheckbox.vue'
 import { toEnNumber, toFaNumber } from '~/utils/formatNumber'
 import { IRAN_PROVINCES, citiesOf } from '~/utils/iran-geo'
+import BaseDialog from '~/components/base/dialog/BaseDialog.vue'
 
 definePageMeta({ middleware: 'auth' })
 
@@ -438,6 +492,10 @@ function startNew() {
 function validate() {
   Object.keys(errors).forEach(key => delete errors[key])
 
+  if (form.save && form.titleChoice === 'custom' && form.customTitle.trim().length === 0) {
+    errors.title = 'عنوان آدرس را بنویسید'
+  }
+
   if (form.recipientName.trim().length < 3) {
     errors.recipientName = 'نام گیرنده را وارد کنید (حداقل ۳ حرف)'
   }
@@ -520,36 +578,148 @@ async function persistAddress() {
   )
 }
 
-async function submit() {
-  if (paying.value) return
+type OrderBody = {
+  recipientName: string
+  recipientMobile: string
+  shippingAddress: Pick<SavedAddress, 'province' | 'city' | 'address' | 'postalCode'>
+  expectedTotalAmount: number
+}
 
-  if (!validate()) {
-    notify({
-      message: 'اطلاعات واردشده را بررسی کنید',
-      color: 'burgundy',
-      textColor: 'white',
-      position: 'top',
-      timeout: 3000,
-    })
-    return
-  }
+type Attempt =
+  | { stage: 'order'; key: string; body: OrderBody }
+  | { stage: 'payment'; orderId: string }
+
+const attempt = ref<Attempt | null>(null)
+const newTotal = ref<number | null>(null)
+const redirectAfterLogin = useState<string | null>('redirect-after-login')
+let storageKey = ''
+
+function remember(value: Attempt | null) {
+  if (value) sessionStorage.setItem(storageKey, JSON.stringify(value))
+  else sessionStorage.removeItem(storageKey)
+
+  attempt.value = value
+}
+
+async function backToCart() {
+  remember(null)
+  newTotal.value = null
+  await navigateTo('/cart')
+}
+
+async function submit(confirmed = false) {
+  if (paying.value || !storageKey) return
 
   paying.value = true
 
   try {
-    await persistAddress()
+    let current = attempt.value
 
-    // ثبت سفارش و انتقال به درگاه در مرحله‌ی بعد اضافه می‌شود
-    notify({
-      message: 'آدرس ذخیره شد. پرداخت در مرحله‌ی بعد فعال می‌شود',
-      color: 'green',
-      textColor: 'white',
-      position: 'top',
-      timeout: 3500,
+    if (!current) {
+      if (!summary.value || !validate()) return
+
+      const body: OrderBody = {
+        recipientName: form.recipientName.trim(),
+        recipientMobile: form.recipientMobile,
+        shippingAddress: {
+          province: form.province,
+          city: form.city,
+          address: form.address.trim(),
+          postalCode: form.postalCode,
+        },
+        expectedTotalAmount: summary.value.totalAmount,
+      }
+
+      await persistAddress()
+
+      current = {
+        stage: 'order',
+        key: crypto.randomUUID(),
+        body,
+      }
+
+      remember(current)
+    }
+
+    if (current.stage === 'order') {
+      if (newTotal.value !== null) {
+        if (!confirmed) return
+
+        current = {
+          ...current,
+          body: {
+            ...current.body,
+            expectedTotalAmount: newTotal.value,
+          },
+        }
+
+        remember(current)
+        newTotal.value = null
+      }
+
+      const order = await $api<{ data: { id: string } }>('/orders', {
+        method: 'POST',
+        headers: { 'Idempotency-Key': current.key },
+        body: current.body,
+        retry: 0,
+      })
+
+      current = { stage: 'payment', orderId: order.data.id }
+      remember(current)
+
+      void cartStore.fetchCart().catch(() => {})
+    }
+
+    const payment = await $api<{ data: { checkoutUrl: string } }>('/payments', {
+      method: 'POST',
+      body: { orderId: current.orderId },
+      retry: 0,
     })
+
+    const url = payment.data.checkoutUrl
+
+    if (!/^\/payments\/mock\/[\w-]+$/.test(url)) {
+      throw new Error('Invalid mock checkout URL')
+    }
+
+    const failure = await navigateTo(url, { replace: true })
+    if (!failure) remember(null)
   }
   catch (error) {
-    showError(error, 'ذخیره‌ی آدرس انجام نشد')
+    const status = getStatus(error)
+    const payload = (error as {
+      data?: { code?: string; data?: { totalAmount?: number } }
+    } | null)?.data
+
+    const amount = payload?.data?.totalAmount
+
+    if (
+      attempt.value?.stage === 'order'
+      && status === 409
+      && payload?.code === 'PRICE_CHANGED'
+      && typeof amount === 'number'
+      && Number.isSafeInteger(amount)
+      && amount >= 0
+    ) {
+      newTotal.value = amount
+      return
+    }
+
+    if (status === 401) {
+      redirectAfterLogin.value = '/checkout'
+      userStore.logout()
+      await navigateTo('/login')
+      return
+    }
+
+    showError(error, 'درخواست تکمیل نشد. دوباره تلاش کنید.')
+
+    if (
+      attempt.value?.stage === 'order'
+      && [400, 404, 409].includes(status ?? 0)
+    ) {
+      await backToCart()
+    }
   }
   finally {
     paying.value = false
@@ -560,6 +730,14 @@ onMounted(async () => {
   try {
     if (!userStore.user?.fullName) {
       await userStore.fetchUser()
+    }
+
+    storageKey = `gold-shop:checkout:v1:${userStore.user.id}`
+
+    const saved = sessionStorage.getItem(storageKey)
+    if (saved) {
+      attempt.value = JSON.parse(saved) as Attempt
+      if (attempt.value) return
     }
 
     const [, addressRes] = await Promise.all([
