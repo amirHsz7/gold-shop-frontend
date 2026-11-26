@@ -90,6 +90,15 @@
             <span v-else class="text-dark-brown/70">قیمت در حال به‌روزرسانی است</span>
           </div>
 
+          <p
+            v-if="!pricing.canCheckout"
+            class="rounded-lg border border-burgundy/20 bg-burgundy/5 px-4 py-3 text-sm leading-7 text-burgundy"
+            role="status"
+          >
+            فروش این محصول موقتاً به دلیل در دسترس نبودن قیمت معتبر طلا غیرفعال است.
+            لطفاً بعداً دوباره بررسی کنید.
+          </p>
+
           <ProductWeightSelector
             v-if="weightItems.length > 0"
             v-model="selectedId"
