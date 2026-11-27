@@ -102,7 +102,14 @@ async function retryPayment() {
 
     <template v-if="result">
       <p role="status">{{ messages[result.outcome] }}</p>
-
+      <NuxtLink
+        v-if="result.outcome === 'PAYMENT_SUCCESS'"
+        :to="`/orders/${encodeURIComponent(result.orderId)}/invoice`"
+        class="rounded-lg border px-4 py-2 text-center font-semibold"
+      >
+        مشاهده و چاپ فاکتور
+      </NuxtLink>
+      
       <BaseBtn
         v-if="result.outcome === 'PAYMENT_FAILED'"
         :loading="busy"
