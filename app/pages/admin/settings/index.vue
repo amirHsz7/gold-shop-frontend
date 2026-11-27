@@ -65,13 +65,15 @@
         </div>
       </form>
     </section>
+
+    <OrderSmsSettings v-if="userStore.isSuperAdmin" />
   </main>
 </template>
 
 <script setup lang="ts">
 import BaseBtn from '~/components/base/button/BaseBtn.vue'
 import BaseInput from '~/components/base/inputs/base-input/BaseInput.vue'
-
+import OrderSmsSettings from '~/components/admin/OrderSmsSettings.vue'
 definePageMeta({
   middleware: 'admin',
   layout: 'admin',
@@ -91,7 +93,7 @@ const toast = useFormToast()
 const { request } = useApiRequest()
 const { getMessage } = useApiError()
 const pricing = usePricingStore()
-
+const userStore = useUserStore()
 const dateFormatter = new Intl.DateTimeFormat('fa-IR', {
   dateStyle: 'medium',
   timeStyle: 'short',
