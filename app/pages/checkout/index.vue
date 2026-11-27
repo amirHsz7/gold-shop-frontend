@@ -142,56 +142,13 @@
             </p>
           </div>
 
-          <div class="grid gap-4 sm:grid-cols-2">
-            <BaseSelect
-              v-model="form.province"
-              :options="provinceOptions"
-              label="استان"
-              placeholder="انتخاب استان"
-              emit-value
-              searchable
-              :error="!!errors.province"
-              :error-message="errors.province"
-            />
-
-            <BaseSelect
-              v-model="form.city"
-              :options="cityOptionList"
-              label="شهر"
-              placeholder="انتخاب شهر"
-              emit-value
-              searchable
-              :error="!!errors.city"
-              :error-message="errors.city"
-            />
-          </div>
-
-          <BaseInput
-            id="ad-full"
-            v-model="form.address"
-            type="textarea"
-            rows="3"
-            label="آدرس کامل"
-            autocomplete="street-address"
-            :error="!!errors.address"
-            :error-message="errors.address"
+          <AddressFields
+            v-model:province="form.province"
+            v-model:city="form.city"
+            v-model:address="form.address"
+            v-model:postal-code="form.postalCode"
+            :errors="errors"
           />
-
-          <div class="grid gap-4 sm:grid-cols-2">
-            <BaseInput
-              id="ad-postal"
-              v-model="form.postalCode"
-              type="tel"
-              label="کد پستی (۱۰ رقم)"
-              inputmode="numeric"
-              autocomplete="postal-code"
-              maxlength="10"
-              dir="ltr"
-              input-class="text-right"
-              :error="!!errors.postalCode"
-              :error-message="errors.postalCode"
-            />
-          </div>
 
           <fieldset class="flex min-w-0 flex-col gap-2.5 border-0 p-0">
             <legend class="mb-2.5 p-0 text-[13px] text-dark-gray">عنوان آدرس</legend>
@@ -378,6 +335,7 @@ import BaseCheckbox from '~/components/base/inputs/BaseCheckbox.vue'
 import { toEnNumber, toFaNumber } from '~/utils/formatNumber'
 import { IRAN_PROVINCES, citiesOf } from '~/utils/iran-geo'
 import BaseDialog from '~/components/base/dialog/BaseDialog.vue'
+import AddressFields from '~/components/address/AddressFields.vue'
 
 definePageMeta({ middleware: 'auth' })
 
